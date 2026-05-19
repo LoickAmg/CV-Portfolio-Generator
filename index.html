@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMG Generator — CV & Portfolio Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #080c10;
+  --bg2:     #0d1117;
+  --bg3:     #161b22;
+  --bg4:     #1c2430;
+  --accent:  #2d8cf0;
+  --accent2: #58a6ff;
+  --white:   #e8edf2;
+  --muted:   #7d8590;
+  --border:  rgba(255,255,255,0.08);
+  --danger:  #f85149;
+  --success: #3fb950;
+  --font-h:  'Syne', sans-serif;
+  --font-b:  'Outfit', sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{height:100%;}
+body{
+  background:var(--bg); color:var(--white);
+  font-family:var(--font-b); font-size:14px;
+  height:100%; display:flex; flex-direction:column; overflow:hidden;
+}
+
+/* ── Header ────────────────────────────────────────── */
+header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.7rem 1.5rem;
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  flex-shrink:0; gap:1rem; z-index:10;
+}
+.logo{font-family:var(--font-h);font-size:1.1rem;font-weight:800;letter-spacing:-.01em;white-space:nowrap;}
+.logo span{color:var(--accent);}
+.mode-toggle{display:flex;background:var(--bg3);border-radius:6px;padding:3px;gap:3px;}
+.mode-btn{
+  font-family:var(--font-h);font-size:.78rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:.35rem .9rem;border-radius:4px;border:none;cursor:pointer;
+  background:transparent;color:var(--muted);transition:all .2s;
+}
+.mode-btn.active{background:var(--accent);color:#fff;}
+.header-right{display:flex;align-items:center;gap:.75rem;}
+.template-sel{
+  background:var(--bg3);border:1px solid var(--border);color:var(--white);
+  font-family:var(--font-b);font-size:.78rem;
+  padding:.35rem .6rem;border-radius:5px;cursor:pointer;outline:none;
+}
+.template-sel option{background:var(--bg3);}
+.btn-export{
+  font-family:var(--font-h);font-size:.75rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:.38rem .9rem;border-radius:5px;border:none;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;gap:.4rem;
+}
+.btn-html{background:rgba(45,140,240,.15);color:var(--accent2);border:1px solid rgba(45,140,240,.3);}
+.btn-html:hover{background:var(--accent);color:#fff;}
+.btn-pdf{background:rgba(63,185,80,.12);color:var(--success);border:1px solid rgba(63,185,80,.3);}
+.btn-pdf:hover{background:var(--success);color:#fff;}
+
+/* ── Body ──────────────────────────────────────────── */
+.app-body{display:flex;flex:1;overflow:hidden;}
+
+/* ── Form Panel ────────────────────────────────────── */
+.form-panel{
+  width:340px;min-width:280px;
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+  flex-shrink:0;
+}
+.form-scroll{flex:1;overflow-y:auto;padding:.75rem;}
+.form-scroll::-webkit-scrollbar{width:4px;}
+.form-scroll::-webkit-scrollbar-track{background:transparent;}
+.form-scroll::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+
+/* Sections accordion */
+.section{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;margin-bottom:.5rem;overflow:hidden;
+}
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.55rem .75rem;cursor:pointer;user-select:none;
+  gap:.5rem;
+}
+.section-head:hover{background:var(--bg4);}
+.section-title{
+  font-family:var(--font-h);font-size:.75rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);
+  display:flex;align-items:center;gap:.5rem;
+}
+.section-icon{font-size:.95rem;}
+.section-arrow{font-size:.7rem;color:var(--muted);transition:transform .2s;}
+.section.open .section-arrow{transform:rotate(180deg);}
+.section-body{display:none;padding:.6rem .75rem .75rem;}
+.section.open .section-body{display:block;}
+
+/* Form fields */
+.field{margin-bottom:.6rem;}
+.field label{
+  display:block;font-size:.72rem;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:.25rem;
+}
+.field input,.field textarea,.field select{
+  width:100%;background:var(--bg4);border:1px solid var(--border);
+  color:var(--white);font-family:var(--font-b);font-size:.85rem;
+  padding:.4rem .6rem;border-radius:5px;outline:none;
+  transition:border-color .2s;
+}
+.field input:focus,.field textarea:focus{border-color:var(--accent);}
+.field textarea{resize:vertical;min-height:70px;line-height:1.5;}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+
+/* Skill rows */
+.skill-row{
+  display:grid;grid-template-columns:1fr auto 28px;align-items:center;
+  gap:.4rem;margin-bottom:.4rem;
+}
+.skill-row input{background:var(--bg4)!important;}
+.skill-level{
+  width:70px;background:var(--bg4);border:1px solid var(--border);
+  color:var(--accent2);font-size:.8rem;text-align:center;
+  padding:.35rem .4rem;border-radius:5px;outline:none;font-family:var(--font-b);
+}
+.btn-rm{
+  width:26px;height:26px;border:none;border-radius:4px;cursor:pointer;
+  background:rgba(248,81,73,.12);color:var(--danger);font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+  flex-shrink:0;
+}
+.btn-rm:hover{background:var(--danger);color:#fff;}
+.btn-add{
+  display:flex;align-items:center;gap:.35rem;
+  font-size:.75rem;font-weight:600;color:var(--accent);
+  background:transparent;border:1px dashed rgba(45,140,240,.3);
+  border-radius:5px;padding:.3rem .6rem;cursor:pointer;
+  transition:all .2s;width:100%;justify-content:center;margin-top:.3rem;
+}
+.btn-add:hover{background:rgba(45,140,240,.1);border-color:var(--accent);}
+
+/* Exp / Edu items */
+.dyn-item{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:6px;padding:.55rem .6rem;margin-bottom:.5rem;
+  position:relative;
+}
+.dyn-item-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:.5rem;
+}
+.dyn-item-label{font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+.dyn-item .field{margin-bottom:.4rem;}
+.dyn-item .field:last-child{margin-bottom:0;}
+
+/* Tags input */
+.tags-wrap{
+  display:flex;flex-wrap:wrap;gap:.3rem;
+  background:var(--bg4);border:1px solid var(--border);
+  border-radius:5px;padding:.35rem .5rem;min-height:36px;cursor:text;
+  align-items:center;
+}
+.tags-wrap:focus-within{border-color:var(--accent);}
+.tag{
+  font-size:.75rem;padding:.15rem .45rem;background:rgba(45,140,240,.15);
+  border:1px solid rgba(45,140,240,.25);color:var(--accent2);border-radius:3px;
+  display:flex;align-items:center;gap:.25rem;cursor:default;
+}
+.tag-x{cursor:pointer;opacity:.6;font-size:.85em;}
+.tag-x:hover{opacity:1;}
+.tags-input{
+  background:transparent;border:none;outline:none;color:var(--white);
+  font-family:var(--font-b);font-size:.82rem;
+  flex:1;min-width:80px;
+}
+.tags-hint{font-size:.67rem;color:var(--muted);margin-top:.2rem;}
+
+/* ── Preview Panel ──────────────────────────────────── */
+.preview-panel{
+  flex:1;display:flex;flex-direction:column;
+  background:var(--bg);overflow:hidden;
+}
+.preview-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.4rem 1rem;background:var(--bg2);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+  gap:.5rem;
+}
+.preview-label{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.preview-wrap{
+  flex:1;overflow:auto;display:flex;
+  align-items:flex-start;justify-content:center;
+  padding:1.5rem;background:var(--bg);
+}
+.preview-wrap::-webkit-scrollbar{width:6px;height:6px;}
+.preview-wrap::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+#preview{
+  border:none;background:#fff;
+  box-shadow:0 4px 40px rgba(0,0,0,.5);
+  border-radius:4px;
+}
+
+/* ── Utils ──────────────────────────────────────────── */
+.hidden{display:none!important;}
+.divider{height:1px;background:var(--border);margin:.5rem 0;}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────── -->
+<header>
+  <div class="logo">AMG <span>Generator</span></div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btn-cv" onclick="setMode('cv')">CV</button>
+    <button class="mode-btn" id="btn-portfolio" onclick="setMode('portfolio')">Portfolio</button>
+  </div>
+  <div class="header-right">
+    <select class="template-sel" id="template-sel" onchange="updateTemplate()">
+      <option value="amg-classic">AMG Classic (sombre)</option>
+      <option value="light-pro">Light Pro (clair)</option>
+    </select>
+    <button class="btn-export btn-html" onclick="exportHTML()">⬇ HTML</button>
+    <button class="btn-export btn-pdf" onclick="exportPDF()">🖨 PDF</button>
+  </div>
+</header>
+
+<!-- ── APP BODY ───────────────────────────────────── -->
+<div class="app-body">
+
+  <!-- FORM PANEL -->
+  <div class="form-panel">
+    <div class="form-scroll" id="form-root">
+      <!-- Rendered dynamically by JS -->
+    </div>
+  </div>
+
+  <!-- PREVIEW PANEL -->
+  <div class="preview-panel">
+    <div class="preview-toolbar">
+      <span class="preview-label">Aperçu en direct</span>
+      <span class="preview-label" id="preview-size"></span>
+    </div>
+    <div class="preview-wrap" id="preview-wrap">
+      <iframe id="preview" title="Aperçu"></iframe>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+let mode = 'cv';
+let cvTemplate = 'amg-classic';
+let portfolioTemplate = 'amg-dark';
+
+const cv = {
+  name: 'AMOUSSOU-GUENOU Loïc Junior Mahouna',
+  title: 'Développeur Web & IA · Monteur Vidéo',
+  location: 'Cotonou, Bénin',
+  phone: '+229 01 94 60 92 69',
+  email: 'mahounaamg@gmail.com',
+  github: 'github.com/loic-amg',
+  linkedin: '',
+  profile: "Développeur Web & IA en Master 2 à l'ESGIS Bénin, avec 3 stages en entreprises ESN et agences publiques. Passionné par l'intelligence artificielle embarquée, l'automatisation et la création de contenu vidéo. Autonome, curieux et capable de monter rapidement en compétences sur de nouvelles technologies.",
+  devSkills: [
+    {name:'Python', level:85},
+    {name:'Node.js', level:72},
+    {name:'AngularJS', level:68},
+    {name:'Rust', level:60},
+    {name:'Spring Boot / Java', level:55},
+  ],
+  tools: ['PHP','SQL','Linux','Conda','WordPress','JSDoc','CKAN'],
+  videoSkills: [
+    {name:'Premiere Pro', level:80},
+    {name:'After Effects', level:70},
+    {name:'Photoshop', level:65},
+  ],
+  languages: [
+    {name:'Français', level:'Avancé'},
+    {name:'Anglais', level:'Débutant'},
+  ],
+  softSkills: ['Fiable & Responsable','Esprit d\'équipe','Autonome & Polyvalent'],
+  interests: 'Cybersécurité · LLM locaux · Web design · Lecture · Musique · Jeux vidéo',
+  experiences: [
+    {title:'Stagiaire Développeur Junior', company:'PERO-GROUPE (ESN)', date:'Janv. – Avr. 2025',
+     bullets:"Intégration de composants AngularJS sur le projet Forseti\nDocumentation technique Front-End avec JSDoc\nPersonnalisation de thèmes WordPress & gestion d'API REST"},
+    {title:'Stagiaire Développeur Junior', company:'METEO-Bénin', date:'Sept. – Oct. 2024',
+     bullets:"Apprentissage Python appliqué à la gestion de données climatiques\nConception de scripts d'automatisation sous Excel"},
+    {title:'Stagiaire Développeur Junior', company:'PERO-GROUPE (ESN)', date:'Mars – Juil. 2024',
+     bullets:"Apprentissage AngularJS & Spring Boot\nGestion de rapports qualitatifs sur SINEB\nInstallation de CKAN sur serveur Linux"},
+  ],
+  education: [
+    {degree:'Master 2 Intelligence Artificielle', school:'ESGIS Bénin', year:'EN COURS'},
+    {degree:'Master 1 Intelligence Artificielle', school:'ESGIS Bénin', year:'OBTENU'},
+    {degree:'Licence Architecture Logicielle', school:'ESGIS Bénin', year:'2024'},
+    {degree:'Baccalauréat Scientifique', school:'Lycée', year:'2021'},
+  ],
+};
+
+const portfolio = {
+  name: 'Loïc AMG',
+  title: 'Développeur Web & IA · Monteur Vidéo',
+  email: 'mahounaamg@gmail.com',
+  github: 'github.com/loic-amg',
+  linkedin: '',
+  bio: "Passionné par l'intelligence artificielle, le développement web et la création de contenu vidéo. Actuellement en Master 2 IA à l'ESGIS Bénin.",
+  skills: ['Python','Node.js','AngularJS','Rust','Java','PHP','SQL','Linux','Premiere Pro','After Effects'],
+  projects: [
+    {title:'Assistant ARK', category:'dev', description:"Assistant personnel IA à architecture souveraine et offline-first. Orchestrateur en Rust, backend Ollama, pipeline RAG/GraphRAG.", tech:'Rust, Python, Ollama, Node.js', link:''},
+    {title:'Détection criminelle par IA', category:'dev', description:"Protocole de recherche M2 — utilisation des modèles d'IA pour la détection de schémas criminels au Bénin.", tech:'Python, ML, NLP', link:''},
+    {title:'Plateforme SINEB', category:'dev', description:"Gestion de rapports qualitatifs et déploiement CKAN sur Linux lors du stage PERO-GROUPE.", tech:'AngularJS, Spring Boot, Linux', link:''},
+    {title:'Montage & Reels', category:'video', description:"Création de contenus vidéo courts avec motion design et effets cinématiques.", tech:'Premiere Pro, After Effects', link:''},
+    {title:'Identité visuelle & Retouche', category:'video', description:"Design d'identités visuelles et retouche photo pour projets personnels et professionnels.", tech:'Photoshop, Design', link:''},
+  ],
+};
+
+/* ══════════════════════════════════════════════════
+   FORM RENDERING
+══════════════════════════════════════════════════ */
+function sec(icon, title, id, content) {
+  return `<div class="section open" id="sec-${id}">
+    <div class="section-head" onclick="toggleSec('${id}')">
+      <div class="section-title"><span class="section-icon">${icon}</span>${title}</div>
+      <span class="section-arrow">▾</span>
+    </div>
+    <div class="section-body">${content}</div>
+  </div>`;
+}
+
+function field(label, inputHtml) {
+  return `<div class="field"><label>${label}</label>${inputHtml}</div>`;
+}
+function inp(key, ph, obj='cv') {
+  return `<input type="text" placeholder="${ph}" value="${esc((obj==='cv'?cv:portfolio)[key]||'')}" oninput="${obj}['${key}']=this.value;updatePreview()">`;
+}
+function ta(key, ph, obj='cv') {
+  return `<textarea placeholder="${ph}" oninput="${obj}['${key}']=this.value;updatePreview()">${esc((obj==='cv'?cv:portfolio)[key]||'')}</textarea>`;
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function renderSkillRows(arr, arrKey, addFn, obj='cv') {
+  return arr.map((s,i)=>`
+    <div class="skill-row">
+      <input type="text" class="field input" placeholder="Compétence" value="${esc(s.name)}"
+        oninput="${obj}['${arrKey}'][${i}].name=this.value;updatePreview()">
+      <input type="number" class="skill-level" min="0" max="100" value="${s.level}"
+        oninput="${obj}['${arrKey}'][${i}].level=+this.value;updatePreview()">
+      <button class="btn-rm" onclick="${obj}['${arrKey}'].splice(${i},1);renderForm();updatePreview()">✕</button>
+    </div>`).join('')
+  + `<button class="btn-add" onclick="${addFn};renderForm();updatePreview()">+ Ajouter</button>`;
+}
+
+function renderTagsInput(arrKey, obj='cv') {
+  const arr = (obj==='cv'?cv:portfolio)[arrKey];
+  const tags = arr.map((t,i)=>
+    `<span class="tag">${esc(t)}<span class="tag-x" onclick="rmTag('${arrKey}',${i},'${obj}')">✕</span></span>`
+  ).join('');
+  return `<div class="tags-wrap" onclick="this.querySelector('.tags-input').focus()">
+    ${tags}
+    <input class="tags-input" type="text" placeholder="Ajouter…" onkeydown="addTag(event,'${arrKey}','${obj}')">
+  </div><div class="tags-hint">Appuyer Entrée ou virgule pour ajouter</div>`;
+}
+
+function renderExpItems() {
+  return cv.experiences.map((e,i)=>`
+    <div class="dyn-item">
+      <div class="dyn-item-head">
+        <span class="dyn-item-label">Expérience ${i+1}</span>
+        <button class="btn-rm" onclick="cv.experiences.splice(${i},1);renderForm();updatePreview()">✕</button>
+      </div>
+      ${field('Titre du poste',`<input type="text" value="${esc(e.title)}" oninput="cv.experiences[${i}].title=this.value;updatePreview()">`)}
+      ${field('Entreprise',`<input type="text" value="${esc(e.company)}" oninput="cv.experiences[${i}].company=this.value;updatePreview()">`)}
+      ${field('Période',`<input type="text" value="${esc(e.date)}" oninput="cv.experiences[${i}].date=this.value;updatePreview()">`)}
+      ${field('Missions (une par ligne)',`<textarea oninput="cv.experiences[${i}].bullets=this.value;updatePreview()">${esc(e.bullets)}</textarea>`)}
+    </div>`).join('')
+  + `<button class="btn-add" onclick="cv.experiences.push({title:'',company:'',date:'',bullets:''});renderForm();updatePreview()">+ Ajouter une expérience</button>`;
+}
+
+function renderEduItems() {
+  return cv.education.map((e,i)=>`
+    <div class="dyn-item">
+      <div class="dyn-item-head">
+        <span class="dyn-item-label">Formation ${i+1}</span>
+        <button class="btn-rm" onclick="cv.education.splice(${i},1);renderForm();updatePreview()">✕</button>
+      </div>
+      ${field('Diplôme / Formation',`<input type="text" value="${esc(e.degree)}" oninput="cv.education[${i}].degree=this.value;updatePreview()">`)}
+      <div class="field-row">
+        ${field('École',`<input type="text" value="${esc(e.school)}" oninput="cv.education[${i}].school=this.value;updatePreview()">`)}
+        ${field('Année',`<input type="text" value="${esc(e.year)}" oninput="cv.education[${i}].year=this.value;updatePreview()">`)}
+      </div>
+    </div>`).join('')
+  + `<button class="btn-add" onclick="cv.education.push({degree:'',school:'',year:''});renderForm();updatePreview()">+ Ajouter une formation</button>`;
+}
+
+function renderLangItems() {
+  return cv.languages.map((l,i)=>`
+    <div class="field-row" style="margin-bottom:.35rem">
+      <input type="text" placeholder="Langue" value="${esc(l.name)}" oninput="cv.languages[${i}].name=this.value;updatePreview()">
+      <input type="text" placeholder="Niveau" value="${esc(l.level)}" oninput="cv.languages[${i}].level=this.value;updatePreview()">
+      <button class="btn-rm" onclick="cv.languages.splice(${i},1);renderForm();updatePreview()" style="width:26px;height:auto">✕</button>
+    </div>`).join('')
+  + `<button class="btn-add" onclick="cv.languages.push({name:'',level:''});renderForm();updatePreview()">+ Ajouter</button>`;
+}
+
+function renderProjectItems() {
+  return portfolio.projects.map((p,i)=>`
+    <div class="dyn-item">
+      <div class="dyn-item-head">
+        <span class="dyn-item-label">Projet ${i+1}</span>
+        <button class="btn-rm" onclick="portfolio.projects.splice(${i},1);renderForm();updatePreview()">✕</button>
+      </div>
+      ${field('Titre',`<input type="text" value="${esc(p.title)}" oninput="portfolio.projects[${i}].title=this.value;updatePreview()">`)}
+      <div class="field-row">
+        ${field('Catégorie',`<input type="text" value="${esc(p.category)}" placeholder="dev / video / design" oninput="portfolio.projects[${i}].category=this.value;updatePreview()">`)}
+        ${field('Lien',`<input type="text" value="${esc(p.link)}" placeholder="https://..." oninput="portfolio.projects[${i}].link=this.value;updatePreview()">`)}
+      </div>
+      ${field('Description',`<textarea oninput="portfolio.projects[${i}].description=this.value;updatePreview()">${esc(p.description)}</textarea>`)}
+      ${field('Technologies (virgules)',`<input type="text" value="${esc(p.tech)}" oninput="portfolio.projects[${i}].tech=this.value;updatePreview()">`)}
+    </div>`).join('')
+  + `<button class="btn-add" onclick="portfolio.projects.push({title:'',category:'dev',description:'',tech:'',link:''});renderForm();updatePreview()">+ Ajouter un projet</button>`;
+}
+
+function renderForm() {
+  const root = document.getElementById('form-root');
+  if (mode === 'cv') {
+    root.innerHTML = [
+      sec('👤','Identité','identity',`
+        ${field('Nom complet',inp('name','Jean Dupont'))}
+        ${field('Titre / Poste',inp('title','Développeur Web & IA'))}
+        <div class="field-row">
+          ${field('Localisation',inp('location','Cotonou, Bénin'))}
+          ${field('Téléphone',inp('phone','+229...'))}
+        </div>
+        ${field('Email',inp('email','email@exemple.com'))}
+        <div class="field-row">
+          ${field('GitHub',inp('github','github.com/username'))}
+          ${field('LinkedIn',inp('linkedin','linkedin.com/in/...'))}
+        </div>
+      `),
+      sec('📝','Profil','profile', field('Résumé professionnel',ta('profile','Décrivez votre profil…'))),
+      sec('💻','Compétences Dev & IA','devskills', renderSkillRows(cv.devSkills,'devSkills',"cv.devSkills.push({name:'',level:70})")),
+      sec('🔧','Outils','tools',`
+        ${field('Tags outils', renderTagsInput('tools','cv'))}
+      `),
+      sec('🎬','Compétences Vidéo','videoskills', renderSkillRows(cv.videoSkills,'videoSkills',"cv.videoSkills.push({name:'',level:70})")),
+      sec('💼','Expériences','experiences', renderExpItems()),
+      sec('🎓','Formation','education', renderEduItems()),
+      sec('🌐','Langues','languages', renderLangItems()),
+      sec('✨','Qualités & Intérêts','soft',`
+        ${field('Soft skills (tags)',renderTagsInput('softSkills','cv'))}
+        ${field('Intérêts',`<input type="text" value="${esc(cv.interests)}" placeholder="Lecture, Musique…" oninput="cv.interests=this.value;updatePreview()">`)}
+      `),
+    ].join('');
+  } else {
+    root.innerHTML = [
+      sec('👤','Identité','pf-identity',`
+        ${field('Nom / Pseudonyme',`<input type="text" value="${esc(portfolio.name)}" oninput="portfolio.name=this.value;updatePreview()">`)}
+        ${field('Titre / Tagline',`<input type="text" value="${esc(portfolio.title)}" oninput="portfolio.title=this.value;updatePreview()">`)}
+        ${field('Email',`<input type="text" value="${esc(portfolio.email)}" oninput="portfolio.email=this.value;updatePreview()">`)}
+        <div class="field-row">
+          ${field('GitHub',`<input type="text" value="${esc(portfolio.github)}" oninput="portfolio.github=this.value;updatePreview()">`)}
+          ${field('LinkedIn',`<input type="text" value="${esc(portfolio.linkedin)}" oninput="portfolio.linkedin=this.value;updatePreview()">`)}
+        </div>
+      `),
+      sec('📝','Bio','pf-bio', field('À propos',`<textarea oninput="portfolio.bio=this.value;updatePreview()">${esc(portfolio.bio)}</textarea>`)),
+      sec('🛠','Compétences','pf-skills', field('Tags skills',renderTagsInput('skills','portfolio'))),
+      sec('🚀','Projets','pf-projects', renderProjectItems()),
+    ].join('');
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   TAG HELPERS
+══════════════════════════════════════════════════ */
+function addTag(e, key, obj='cv') {
+  if(e.key==='Enter'||e.key===',') {
+    e.preventDefault();
+    const v = e.target.value.trim().replace(/,$/,'');
+    if(v){(obj==='cv'?cv:portfolio)[key].push(v); e.target.value=''; renderForm(); updatePreview();}
+  }
+}
+function rmTag(key, i, obj='cv') {
+  (obj==='cv'?cv:portfolio)[key].splice(i,1); renderForm(); updatePreview();
+}
+
+/* ══════════════════════════════════════════════════
+   TOGGLE SECTION
+══════════════════════════════════════════════════ */
+function toggleSec(id) {
+  document.getElementById('sec-'+id).classList.toggle('open');
+}
+
+/* ══════════════════════════════════════════════════
+   MODE & TEMPLATE
+══════════════════════════════════════════════════ */
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-cv').classList.toggle('active', m==='cv');
+  document.getElementById('btn-portfolio').classList.toggle('active', m==='portfolio');
+  const sel = document.getElementById('template-sel');
+  if(m==='cv'){
+    sel.innerHTML='<option value="amg-classic">AMG Classic (sombre)</option><option value="light-pro">Light Pro (clair)</option>';
+    sel.value = cvTemplate;
+  } else {
+    sel.innerHTML='<option value="amg-dark">AMG Dark (cinématique)</option><option value="minimal">Minimal (clair)</option>';
+    sel.value = portfolioTemplate;
+  }
+  renderForm();
+  updatePreview();
+}
+function updateTemplate() {
+  const v = document.getElementById('template-sel').value;
+  if(mode==='cv') cvTemplate=v; else portfolioTemplate=v;
+  updatePreview();
+}
+
+/* ══════════════════════════════════════════════════
+   PREVIEW
+══════════════════════════════════════════════════ */
+let previewTimer = null;
+function updatePreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(_doPreview, 80);
+}
+
+function _doPreview() {
+  const iframe = document.getElementById('preview');
+  const html = mode==='cv' ? renderCVTemplate() : renderPortfolioTemplate();
+  if (mode==='cv') {
+    iframe.style.width='210mm'; iframe.style.height='297mm';
+    document.getElementById('preview-size').textContent='A4 · 210×297mm';
+  } else {
+    iframe.style.width='900px'; iframe.style.height='600px';
+    document.getElementById('preview-size').textContent='Web · 900px';
+  }
+  iframe.srcdoc = html;
+}
+
+/* ══════════════════════════════════════════════════
+   EXPORT
+══════════════════════════════════════════════════ */
+function exportHTML() {
+  const html = mode==='cv' ? renderCVTemplate() : renderPortfolioTemplate();
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = mode==='cv' ? 'cv.html' : 'portfolio.html';
+  a.click();
+}
+
+function exportPDF() {
+  const html = mode==='cv' ? renderCVTemplate() : renderPortfolioTemplate();
+  const win = window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{ win.print(); }, 800);
+}
+
+/* ══════════════════════════════════════════════════
+   CV TEMPLATE — AMG CLASSIC (DARK SIDEBAR)
+══════════════════════════════════════════════════ */
+function renderCVTemplate() {
+  if(cvTemplate==='light-pro') return renderCVLightPro();
+  return renderCVAMGClassic();
+}
+
+function renderCVAMGClassic() {
+  const skillBars = cv.devSkills.map(s=>`
+    <div class="s-skill">
+      <div class="s-skill-name">${s.name}</div>
+      <div class="s-skill-bar"><div class="s-skill-fill" style="width:${s.level}%"></div></div>
+    </div>`).join('');
+  const videoSkillBars = cv.videoSkills.map(s=>`
+    <div class="s-skill">
+      <div class="s-skill-name">${s.name}</div>
+      <div class="s-skill-bar"><div class="s-skill-fill" style="width:${s.level}%"></div></div>
+    </div>`).join('');
+  const toolTags = cv.tools.map(t=>`<span class="s-tag">${t}</span>`).join('');
+  const langItems = cv.languages.map(l=>`
+    <div class="s-lang">
+      <span class="s-lang-name">${l.name}</span>
+      <span class="s-lang-level">${l.level}</span>
+    </div>`).join('');
+  const softItems = cv.softSkills.map(s=>`<span>${s}</span><br>`).join('');
+  const xpItems = cv.experiences.map(x=>`
+    <div class="xp-item">
+      <div class="xp-header">
+        <div class="xp-title">${x.title}</div>
+        <div class="xp-date">${x.date}</div>
+      </div>
+      <div class="xp-company">${x.company}</div>
+      <ul class="xp-bullets">
+        ${x.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li>${b.trim()}</li>`).join('')}
+      </ul>
+    </div>`).join('');
+  const eduItems = cv.education.map(e=>`
+    <div class="edu-item">
+      <div class="edu-degree">${e.degree}</div>
+      <div class="edu-school">${e.school}</div>
+      <div class="edu-year">${e.year}</div>
+    </div>`).join('');
+  const contactRows = [
+    cv.location && `<div class="s-contact-item"><span class="ico">📍</span><span>${cv.location}</span></div>`,
+    cv.phone && `<div class="s-contact-item"><span class="ico">📞</span><span>${cv.phone}</span></div>`,
+    cv.email && `<div class="s-contact-item"><span class="ico">✉️</span><span>${cv.email}</span></div>`,
+    cv.github && `<div class="s-contact-item"><span class="ico">🔗</span><span>${cv.github}</span></div>`,
+    cv.linkedin && `<div class="s-contact-item"><span class="ico">💼</span><span>${cv.linkedin}</span></div>`,
+  ].filter(Boolean).join('');
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>CV — ${cv.name}</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#2d8cf0;--blue-d:#1464cc;--dark:#0f1923;--sidebar:#111b26;--text:#1c2a35;--muted:#5a6e7e;--border:#dde4ea;--bg:#f4f7fa;--white:#ffffff;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:#cdd4da;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:2rem;font-family:'Outfit',sans-serif;}
+.cv-page{width:210mm;min-height:297mm;background:var(--white);display:flex;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.sidebar{width:68mm;min-width:68mm;background:var(--sidebar);color:#c8d6e5;padding:9mm 6.5mm;display:flex;flex-direction:column;gap:5mm;position:relative;overflow:hidden;}
+.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue);}
+.s-name{font-family:'Syne',sans-serif;font-weight:800;font-size:13pt;color:var(--white);line-height:1.15;letter-spacing:-.02em;}
+.s-title{font-size:7pt;font-weight:500;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-top:2mm;line-height:1.5;}
+.s-divider{height:1px;background:rgba(255,255,255,.07);margin:.5mm 0;}
+.s-section-title{font-size:6pt;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:2mm;}
+.s-contact-item{display:flex;align-items:flex-start;gap:2mm;font-size:7.5pt;color:#a8bdd1;margin-bottom:1.5mm;line-height:1.35;}
+.s-contact-item .ico{font-size:7pt;color:var(--blue);margin-top:.5pt;width:10px;flex-shrink:0;}
+.s-skill{margin-bottom:2mm;}
+.s-skill-name{font-size:7.5pt;color:#c8d6e5;margin-bottom:1mm;}
+.s-skill-bar{height:2.5px;background:rgba(255,255,255,.1);border-radius:2px;}
+.s-skill-fill{height:100%;background:linear-gradient(90deg,var(--blue),#58a6ff);border-radius:2px;}
+.s-tags{display:flex;flex-wrap:wrap;gap:1.5mm;}
+.s-tag{font-size:6.5pt;padding:1mm 2mm;background:rgba(45,140,240,.15);border:1px solid rgba(45,140,240,.25);color:#7eb8ff;border-radius:2px;}
+.s-soft{font-size:7.5pt;color:#a8bdd1;line-height:1.9;}
+.s-soft span::before{content:'· ';color:var(--blue);}
+.s-lang{display:flex;justify-content:space-between;align-items:center;margin-bottom:2mm;}
+.s-lang-name{font-size:7.5pt;color:#c8d6e5;}
+.s-lang-level{font-size:6pt;font-weight:600;letter-spacing:.06em;padding:.8mm 1.8mm;background:rgba(45,140,240,.2);color:#7eb8ff;border-radius:2px;}
+.s-interests{font-size:7pt;color:#7a9bb5;line-height:1.8;}
+.main{flex:1;padding:9mm 8mm 6mm;display:flex;flex-direction:column;gap:5mm;overflow:hidden;}
+.m-section-title{font-family:'Syne',sans-serif;font-size:8pt;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--blue);padding-bottom:1.5mm;border-bottom:1.5px solid var(--blue);margin-bottom:3mm;}
+.m-profile{font-size:8pt;color:var(--muted);line-height:1.75;}
+.xp-item{margin-bottom:3.5mm;padding-left:3.5mm;position:relative;}
+.xp-item::before{content:'';position:absolute;left:0;top:3.5pt;width:5px;height:5px;border-radius:50%;background:var(--blue);border:1.5px solid var(--white);box-shadow:0 0 0 1px var(--blue);}
+.xp-item::after{content:'';position:absolute;left:2px;top:9pt;width:1px;bottom:-3.5mm;background:var(--border);}
+.xp-item:last-child::after{display:none;}
+.xp-header{display:flex;justify-content:space-between;align-items:flex-start;}
+.xp-title{font-family:'Syne',sans-serif;font-size:8.5pt;font-weight:700;color:var(--text);}
+.xp-date{font-size:6.5pt;font-weight:600;color:var(--blue);white-space:nowrap;letter-spacing:.04em;}
+.xp-company{font-size:7pt;color:var(--muted);margin-top:.5mm;font-style:italic;}
+.xp-bullets{margin-top:1.5mm;list-style:none;}
+.xp-bullets li{font-size:7.5pt;color:var(--muted);padding:.5mm 0 .5mm 2.5mm;position:relative;line-height:1.45;}
+.xp-bullets li::before{content:'›';position:absolute;left:0;color:var(--blue);font-weight:700;}
+.edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5mm;}
+.edu-item{padding:2.5mm 3mm;background:var(--bg);border-left:2.5px solid var(--blue);border-radius:0 3px 3px 0;}
+.edu-degree{font-size:7.5pt;font-weight:600;color:var(--text);line-height:1.3;}
+.edu-school{font-size:6.5pt;color:var(--muted);margin-top:.5mm;}
+.edu-year{font-size:6pt;font-weight:600;color:var(--blue);margin-top:.5mm;letter-spacing:.05em;}
+@media print{body{background:white;padding:0;}.cv-page{box-shadow:none;}}
+</style></head>
+<body><div class="cv-page">
+<aside class="sidebar">
+  <div>
+    <div class="s-name">${cv.name.replace(/\s+/g,'<br>').replace('<br>','<br>').slice(0,100)}</div>
+    <div class="s-title">${cv.title}</div>
+  </div>
+  <div class="s-divider"></div>
+  <div>
+    <div class="s-section-title">Contact</div>
+    ${contactRows}
+  </div>
+  <div class="s-divider"></div>
+  ${cv.devSkills.length ? `<div><div class="s-section-title">Dev & IA</div>${skillBars}</div>` : ''}
+  ${cv.tools.length ? `<div><div class="s-section-title">Outils</div><div class="s-tags">${toolTags}</div></div>` : ''}
+  ${cv.videoSkills.length ? `<div><div class="s-section-title">Vidéo & Design</div>${videoSkillBars}</div>` : ''}
+  <div class="s-divider"></div>
+  ${cv.languages.length ? `<div><div class="s-section-title">Langues</div>${langItems}</div>` : ''}
+  <div class="s-divider"></div>
+  ${cv.softSkills.length ? `<div><div class="s-section-title">Qualités</div><div class="s-soft">${softItems}</div></div>` : ''}
+  ${cv.interests ? `<div><div class="s-section-title">Intérêts</div><div class="s-interests">${cv.interests}</div></div>` : ''}
+</aside>
+<main class="main">
+  ${cv.profile ? `<div><div class="m-section-title">Profil</div><p class="m-profile">${cv.profile}</p></div>` : ''}
+  ${cv.experiences.length ? `<div><div class="m-section-title">Expériences Professionnelles</div><div>${xpItems}</div></div>` : ''}
+  ${cv.education.length ? `<div><div class="m-section-title">Formation</div><div class="edu-grid">${eduItems}</div></div>` : ''}
+</main>
+</div></body></html>`;
+}
+
+function renderCVLightPro() {
+  const skillPills = cv.devSkills.map(s=>
+    `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-size:8.5pt;color:#334155;">${s.name}</span>
+      <div style="width:80px;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;">
+        <div style="width:${s.level}%;height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:2px;"></div>
+      </div>
+    </div>`).join('');
+  const videoP = cv.videoSkills.map(s=>
+    `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-size:8.5pt;color:#334155;">${s.name}</span>
+      <div style="width:80px;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;">
+        <div style="width:${s.level}%;height:100%;background:linear-gradient(90deg,#8b5cf6,#a78bfa);border-radius:2px;"></div>
+      </div>
+    </div>`).join('');
+  const tools = cv.tools.map(t=>`<span style="font-size:7pt;padding:2px 7px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;border-radius:3px;">${t}</span>`).join(' ');
+  const langs = cv.languages.map(l=>`<div style="display:flex;justify-content:space-between;font-size:8pt;color:#475569;margin-bottom:4px;"><span>${l.name}</span><span style="color:#3b82f6;font-weight:600;">${l.level}</span></div>`).join('');
+  const xp = cv.experiences.map(x=>`
+    <div style="margin-bottom:8mm;padding-left:4mm;border-left:2px solid #bfdbfe;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="font-family:'Syne',sans-serif;font-size:9pt;font-weight:700;color:#1e293b;">${x.title}</div>
+        <div style="font-size:7pt;color:#3b82f6;font-weight:600;white-space:nowrap;">${x.date}</div>
+      </div>
+      <div style="font-size:7.5pt;color:#64748b;margin-top:1mm;font-style:italic;">${x.company}</div>
+      <ul style="margin-top:2mm;list-style:none;padding:0;">
+        ${x.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li style="font-size:7.5pt;color:#64748b;padding:1mm 0 1mm 3mm;position:relative;line-height:1.4;"><span style="position:absolute;left:0;color:#3b82f6;">›</span>${b.trim()}</li>`).join('')}
+      </ul>
+    </div>`).join('');
+  const edu = cv.education.map(e=>`
+    <div style="padding:3mm;background:#f8fafc;border-top:2px solid #bfdbfe;border-radius:0 0 4px 4px;margin-bottom:2mm;">
+      <div style="font-size:8pt;font-weight:600;color:#1e293b;">${e.degree}</div>
+      <div style="font-size:7pt;color:#64748b;margin-top:1mm;">${e.school}</div>
+      <div style="font-size:6.5pt;color:#3b82f6;font-weight:700;margin-top:1mm;">${e.year}</div>
+    </div>`).join('');
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>CV — ${cv.name}</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:#e2e8f0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:2rem;font-family:'Outfit',sans-serif;}
+.cv{width:210mm;min-height:297mm;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.15);overflow:hidden;}
+.cv-top{background:linear-gradient(135deg,#1e3a5f 0%,#1d4ed8 100%);padding:8mm 10mm;color:#fff;}
+.cv-name{font-family:'Syne',sans-serif;font-size:18pt;font-weight:800;letter-spacing:-.02em;}
+.cv-title{font-size:8pt;font-weight:500;color:#93c5fd;letter-spacing:.12em;text-transform:uppercase;margin-top:1.5mm;}
+.cv-contact{display:flex;flex-wrap:wrap;gap:4mm;margin-top:4mm;}
+.cv-ci{font-size:7.5pt;color:#bfdbfe;display:flex;align-items:center;gap:1.5mm;}
+.cv-body{display:flex;}
+.cv-left{width:65mm;background:#f8fafc;border-right:1px solid #e2e8f0;padding:7mm 6mm;}
+.cv-right{flex:1;padding:7mm 8mm;}
+.sec-t{font-family:'Syne',sans-serif;font-size:7.5pt;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#1d4ed8;border-bottom:1.5px solid #bfdbfe;padding-bottom:1.5mm;margin-bottom:3mm;}
+.sec{margin-bottom:5mm;}
+@media print{body{background:#fff;padding:0;}.cv{box-shadow:none;}}
+</style></head>
+<body><div class="cv">
+<div class="cv-top">
+  <div class="cv-name">${cv.name}</div>
+  <div class="cv-title">${cv.title}</div>
+  <div class="cv-contact">
+    ${cv.location?`<span class="cv-ci">📍 ${cv.location}</span>`:''}
+    ${cv.phone?`<span class="cv-ci">📞 ${cv.phone}</span>`:''}
+    ${cv.email?`<span class="cv-ci">✉ ${cv.email}</span>`:''}
+    ${cv.github?`<span class="cv-ci">🔗 ${cv.github}</span>`:''}
+  </div>
+</div>
+<div class="cv-body">
+<div class="cv-left">
+  ${cv.profile?`<div class="sec"><div class="sec-t">Profil</div><p style="font-size:7.5pt;color:#475569;line-height:1.7;">${cv.profile}</p></div>`:''}
+  ${cv.devSkills.length?`<div class="sec"><div class="sec-t">Dev & IA</div>${skillPills}</div>`:''}
+  ${cv.videoSkills.length?`<div class="sec"><div class="sec-t">Vidéo</div>${videoP}</div>`:''}
+  ${cv.tools.length?`<div class="sec"><div class="sec-t">Outils</div><div style="display:flex;flex-wrap:wrap;gap:2mm;">${tools}</div></div>`:''}
+  ${cv.languages.length?`<div class="sec"><div class="sec-t">Langues</div>${langs}</div>`:''}
+  ${cv.softSkills.length?`<div class="sec"><div class="sec-t">Qualités</div>${cv.softSkills.map(s=>`<div style="font-size:7.5pt;color:#475569;margin-bottom:2mm;">· ${s}</div>`).join('')}</div>`:''}
+</div>
+<div class="cv-right">
+  ${cv.experiences.length?`<div class="sec"><div class="sec-t">Expériences</div>${xp}</div>`:''}
+  ${cv.education.length?`<div class="sec"><div class="sec-t">Formation</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:2mm;">${edu}</div></div>`:''}
+</div>
+</div>
+</div></body></html>`;
+}
+
+/* ══════════════════════════════════════════════════
+   PORTFOLIO TEMPLATES
+══════════════════════════════════════════════════ */
+function renderPortfolioTemplate() {
+  if(portfolioTemplate==='minimal') return renderPortfolioMinimal();
+  return renderPortfolioDark();
+}
+
+function renderPortfolioDark() {
+  const cats = [...new Set(portfolio.projects.map(p=>p.category))];
+  const catBtns = ['all',...cats].map(c=>
+    `<button onclick="filterProjects('${c}',this)" class="cat-btn${c==='all'?' active':''}">${c==='all'?'Tous':c}</button>`
+  ).join('');
+  const projects = portfolio.projects.map(p=>`
+    <div class="proj-card" data-cat="${p.category}">
+      <div class="proj-cat">${p.category}</div>
+      <div class="proj-title">${p.title}</div>
+      <div class="proj-desc">${p.description}</div>
+      <div class="proj-tech">${(p.tech||'').split(',').map(t=>`<span class="tech-tag">${t.trim()}</span>`).join('')}</div>
+      ${p.link?`<a href="${p.link}" class="proj-link" target="_blank">Voir le projet →</a>`:''}
+    </div>`).join('');
+  const skills = portfolio.skills.map(s=>`<span class="skill-pill">${s}</span>`).join('');
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>${portfolio.name} · Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080c10;--bg2:#0d1117;--bg3:#161b22;--accent:#2d8cf0;--accent2:#58a6ff;--white:#e8edf2;--muted:#7d8590;--border:rgba(255,255,255,0.07);}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--white);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.7;}
+nav{padding:1.2rem 5vw;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;color:var(--white);}
+.nav-logo span{color:var(--accent);}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{font-size:.8rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;}
+.hero{padding:6rem 5vw 5rem;max-width:900px;margin:0 auto;}
+.hero-tag{font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;}
+.hero-name{font-family:'Syne',sans-serif;font-size:clamp(2.5rem,6vw,4rem);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:1rem;}
+.hero-name span{color:var(--accent);}
+.hero-title{font-size:1.1rem;color:var(--muted);margin-bottom:2rem;}
+.hero-bio{font-size:1rem;color:#a8bdd1;max-width:600px;line-height:1.8;margin-bottom:2.5rem;}
+.hero-links{display:flex;gap:1rem;flex-wrap:wrap;}
+.hero-link{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(45,140,240,.4);border-radius:4px;padding:.5rem 1.2rem;text-decoration:none;transition:all .2s;}
+.hero-link:hover{background:var(--accent);color:#fff;}
+.section{padding:4rem 5vw;max-width:900px;margin:0 auto;}
+.sec-title{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:2rem;}
+.skills-wrap{display:flex;flex-wrap:wrap;gap:.6rem;}
+.skill-pill{font-size:.82rem;padding:.35rem .85rem;background:rgba(45,140,240,.1);border:1px solid rgba(45,140,240,.2);color:var(--accent2);border-radius:4px;}
+.cat-btns{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem;}
+.cat-btn{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .85rem;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
+.cat-btn.active,.cat-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem;}
+.proj-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem;transition:border-color .2s,transform .2s;}
+.proj-card:hover{border-color:rgba(45,140,240,.4);transform:translateY(-2px);}
+.proj-card.hidden{display:none;}
+.proj-cat{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;}
+.proj-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--white);margin-bottom:.5rem;}
+.proj-desc{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem;}
+.proj-tech{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.75rem;}
+.tech-tag{font-size:.7rem;padding:.2rem .5rem;background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:3px;}
+.proj-link{font-size:.78rem;color:var(--accent2);text-decoration:none;font-weight:600;}
+.contact-block{padding:4rem 5vw;text-align:center;border-top:1px solid var(--border);}
+.contact-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.75rem;}
+.contact-sub{color:var(--muted);margin-bottom:1.5rem;}
+.contact-email{font-size:1.1rem;color:var(--accent2);font-weight:600;}
+footer{text-align:center;padding:1.5rem;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);}
+</style></head>
+<body>
+<nav>
+  <div class="nav-logo">${portfolio.name.split(' ')[0]} <span>${(portfolio.name.split(' ').slice(1).join(' ')||'Portfolio')}</span></div>
+  <ul class="nav-links"><li><a href="#projets">Projets</a></li><li><a href="#contact">Contact</a></li></ul>
+</nav>
+<div class="hero">
+  <div class="hero-tag">✦ Portfolio</div>
+  <h1 class="hero-name">${portfolio.name.split(' ').map((w,i)=>i===0?`<span>${w}</span>`:w).join(' ')}</h1>
+  <div class="hero-title">${portfolio.title}</div>
+  <p class="hero-bio">${portfolio.bio}</p>
+  <div class="hero-links">
+    ${portfolio.email?`<a href="mailto:${portfolio.email}" class="hero-link">✉ Email</a>`:''}
+    ${portfolio.github?`<a href="https://${portfolio.github}" target="_blank" class="hero-link">🔗 GitHub</a>`:''}
+    ${portfolio.linkedin?`<a href="https://${portfolio.linkedin}" target="_blank" class="hero-link">💼 LinkedIn</a>`:''}
+  </div>
+</div>
+${portfolio.skills.length?`<div class="section"><div class="sec-title">Compétences</div><div class="skills-wrap">${skills}</div></div>`:''}
+${portfolio.projects.length?`
+<div class="section" id="projets">
+  <div class="sec-title">Projets</div>
+  <div class="cat-btns">${catBtns}</div>
+  <div class="proj-grid">${projects}</div>
+</div>`:''}
+<div class="contact-block" id="contact">
+  <div class="contact-title">Travaillons ensemble</div>
+  <div class="contact-sub">Disponible pour des missions freelance et des opportunités.</div>
+  ${portfolio.email?`<div class="contact-email">${portfolio.email}</div>`:''}
+</div>
+<footer>© ${new Date().getFullYear()} ${portfolio.name} · Construit avec AMG Generator</footer>
+<script>
+function filterProjects(cat,btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.proj-card').forEach(c=>{
+    c.classList.toggle('hidden', cat!=='all' && c.dataset.cat!==cat);
+  });
+}
+<\/script>
+</body></html>`;
+}
+
+function renderPortfolioMinimal() {
+  const skills = portfolio.skills.map(s=>`<span style="font-size:.82rem;padding:.3rem .75rem;background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:4px;">${s}</span>`).join(' ');
+  const projects = portfolio.projects.map(p=>`
+    <div style="padding:1.5rem;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:#0f172a;">${p.title}</div>
+        <span style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3b82f6;background:#eff6ff;padding:.2rem .5rem;border-radius:3px;">${p.category}</span>
+      </div>
+      <p style="font-size:.85rem;color:#64748b;line-height:1.6;margin-bottom:.75rem;">${p.description}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:.3rem;">
+        ${(p.tech||'').split(',').map(t=>`<span style="font-size:.7rem;padding:.15rem .45rem;background:#f8fafc;border:1px solid #e2e8f0;color:#94a3b8;border-radius:3px;">${t.trim()}</span>`).join('')}
+      </div>
+      ${p.link?`<a href="${p.link}" style="display:inline-block;margin-top:.75rem;font-size:.78rem;color:#3b82f6;font-weight:600;text-decoration:none;" target="_blank">Voir →</a>`:''}
+    </div>`).join('');
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>${portfolio.name} · Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:#fff;color:#1e293b;font-family:'Outfit',sans-serif;font-weight:400;line-height:1.7;max-width:760px;margin:0 auto;padding:3rem 2rem;}
+h1{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.5rem;}
+h1 span{color:#3b82f6;}
+.subtitle{font-size:1rem;color:#64748b;margin-bottom:2rem;}
+.bio{font-size:.95rem;color:#475569;max-width:560px;line-height:1.8;margin-bottom:2rem;}
+.links{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:3rem;}
+.link{font-size:.8rem;font-weight:600;color:#3b82f6;text-decoration:none;border-bottom:1px solid #bfdbfe;padding-bottom:1px;}
+.sec-title{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#94a3b8;margin-bottom:1rem;margin-top:2.5rem;}
+hr{border:none;border-top:1px solid #f1f5f9;margin:2rem 0;}
+</style></head>
+<body>
+<h1><span>${portfolio.name.split(' ')[0]}</span> ${portfolio.name.split(' ').slice(1).join(' ')}</h1>
+<div class="subtitle">${portfolio.title}</div>
+<p class="bio">${portfolio.bio}</p>
+<div class="links">
+  ${portfolio.email?`<a href="mailto:${portfolio.email}" class="link">Email</a>`:''}
+  ${portfolio.github?`<a href="https://${portfolio.github}" class="link" target="_blank">GitHub</a>`:''}
+  ${portfolio.linkedin?`<a href="https://${portfolio.linkedin}" class="link" target="_blank">LinkedIn</a>`:''}
+</div>
+${portfolio.skills.length?`<div class="sec-title">Compétences</div><div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem;">${skills}</div>`:''}
+${portfolio.projects.length?`<div class="sec-title">Projets</div>${projects}`:''}
+<hr>
+<div style="font-size:.78rem;color:#94a3b8;text-align:center;padding:1rem 0;">© ${new Date().getFullYear()} ${portfolio.name}</div>
+</body></html>`;
+}
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+renderForm();
+updatePreview();
+</script>
+</body>
+</html>
