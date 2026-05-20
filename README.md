@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 \# CV \& Portfolio Generator 🚀
+=======
+# CV & Portfolio Generator 
+>>>>>>> 66bec0e58e488a5d94b958213fc37ec3691f9c99
 
 
 
