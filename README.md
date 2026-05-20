@@ -1,74 +1,90 @@
-# AMG Generator — CV & Portfolio Builder
+\# CV \& Portfolio Generator 🚀
 
-Générateur dynamique de CV et de portfolios en HTML, déployable sur GitHub Pages.
 
-## ✨ Ce que c'est
 
-Un outil web **100 % local** (un seul fichier HTML) qui permet de :
-- **Créer des CV** en remplissant un formulaire → aperçu en direct
-- **Créer des portfolios** avec ses projets, bio, compétences
-- **Exporter en HTML** (fichier téléchargeable, standalone)
-- **Exporter en PDF** via la boîte de dialogue d'impression du navigateur
-- Choisir parmi **4 templates** (2 CV, 2 Portfolio)
+\[cite\_start]Générateur dynamique universel de CV professionnels et de portfolios créatifs en HTML, entièrement hébergé côté client et déployable instantanément sur GitHub Pages.
 
-## 🚀 Déploiement sur GitHub Pages
+
+
+\## ✨ Fonctionnalités majeures (Mise à jour)
+
+
+
+\- \[cite\_start]\*\*Générateur 100 % Local \& RGPD\*\* : Un seul fichier autonome compilant l'interface et les moteurs\[cite: 53].
+
+\- \*\*Anonymisation Directe\*\* : Injection automatique de faux profils réalistes à chaque chargement pour protéger vos informations privées lors de démonstrations.
+
+\- \*\*Modification Directe Cross-Modèle\*\* : Un nouveau panneau d'interopérabilité permet de modifier l'axe de couleur principal, d'altérer la structure (inversion des colonnes) et de modifier les paires typographiques à chaud sur n'importe quel modèle.
+
+\- \[cite\_start]\*\*Export Hybride instantané\*\* : Téléchargement du fichier de code `.html` ou ouverture de la boîte système pour impression PDF A4\[cite: 54].
+
+
+
+\## 📄 Liste des Modèles (Templates) inclus
+
+
+
+\### 1. Section Curriculum Vitae (CV)
+
+| Modèle | Style \& Description |
+
+|---|---|
+
+| \*\*Classic\*\* | \[cite\_start]Barre latérale sombre, graphiques de niveaux épurés, structure corporate solide\[cite: 54]. |
+
+| \*\*Light Pro\*\* | \[cite\_start]En-tête dégradé sombre, corps double colonne blanc, lisibilité maximale\[cite: 54]. |
+
+| \*\*Creative Emerald\*\* | Grille asymétrique moderne, puces d'expertises encapsulées, idéal profils tech. |
+
+| \*\*Editorial Serif\*\* | Mode chic, haute typographie centrée (Playfair), idéal métiers littéraires/artistiques. |
+
+
+
+\### 2. Section Portfolios Écran
+
+| Modèle | Style \& Description |
+
+|---|---|
+
+| \*\*Dark Cinematic\*\* | \[cite\_start]Mode sombre enveloppant, filtres dynamiques par onglets, idéal monteurs vidéo\[cite: 54]. |
+
+| \*\*Minimal\*\* | \[cite\_start]Fond blanc mat texturé, focus absolu sur les délivrables techniques\[cite: 54]. |
+
+| \*\*Masonry Visual\*\* | Disposition en tuiles imbriquées asymétriques pour un impact visuel lourd. |
+
+| \*\*Adobe Left-Sidebar\*\* | Réplique structurelle des sites vitrines épurés de la plateforme Adobe Portfolio. |
+
+
+
+\## 🛠️ Instructions de synchronisation Git \& GitHub Pages
+
+
+
+\[cite\_start]Pour envoyer ces modifications sur ton dépôt en ligne et écraser l'ancienne version, ouvre ton terminal dans le dossier du projet et exécute la suite de commandes suivante\[cite: 55, 61, 78]:
+
+
 
 ```bash
-# 1. Créer un repo GitHub (ex: amg-generator)
-git init
+
+\# 1. Vérifier le statut des fichiers modifiés
+
+git status
+
+
+
+\# 2. Indexer la mise à jour globale
+
 git add index.html README.md
-git commit -m "Init AMG Generator"
-git branch -M main
-git remote add origin https://github.com/TON_USERNAME/amg-generator.git
-git push -u origin main
 
-# 2. Activer GitHub Pages
-# → Settings > Pages > Branch: main > / (root) > Save
-# URL: https://TON_USERNAME.github.io/amg-generator/
-```
 
-## 📄 Templates disponibles
 
-### CV
-| Template | Description |
-|---|---|
-| **AMG Classic** | Sidebar sombre (#111b26) + main clair, barres de compétences, style professionnel sombre |
-| **Light Pro** | Header bleu gradient, 2 colonnes clair, minimaliste et lisible |
+\# 3. Enregistrer les modifications avec un message explicite
 
-### Portfolio
-| Template | Description |
-|---|---|
-| **AMG Dark** | Fond cinématique (#080c10), grille de projets filtrables, hero animé |
-| **Minimal** | Fond blanc, typographie seule, maximaliste en contenu |
+git commit -m "Feat: Update renamings, randomized profile data, and added 6 new templates"
 
-## 🛠 Utilisation
 
-1. Ouvrir `index.html` dans n'importe quel navigateur
-2. Remplir le formulaire (gauche)
-3. L'aperçu (droite) se met à jour en temps réel
-4. Cliquer **⬇ HTML** pour télécharger le fichier final
-5. Cliquer **🖨 PDF** pour ouvrir dans un nouvel onglet et imprimer
 
-> **Astuce PDF** : Dans la boîte d'impression, choisir « Enregistrer en PDF » et décocher les en-têtes/pieds de page.
+\# 4. Propulser le code sur la branche principale en ligne
 
-## 📁 Structure
+git push origin main
 
-```
-amg-generator/
-└── index.html   ← Le générateur complet (auto-contenu)
-└── README.md
-```
-
-## 🧩 Personnaliser les templates
-
-Le fichier `index.html` contient 4 fonctions de rendu facilement modifiables :
-- `renderCVAMGClassic()` — CV template 1
-- `renderCVLightPro()` — CV template 2
-- `renderPortfolioDark()` — Portfolio template 1
-- `renderPortfolioMinimal()` — Portfolio template 2
-
-Chaque fonction retourne une chaîne HTML complète et auto-contenue.
-
-## Auteur
-
-**AMOUSSOU-GUENOU Loïc Junior Mahouna** · [mahounaamg@gmail.com](mailto:mahounaamg@gmail.com)

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AMG Generator — CV & Portfolio Builder</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>CV & Portfolio Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Montserrat:wght@300;400;600;700&family=Bebas+Neue&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:      #080c10;
@@ -69,7 +69,7 @@ header{
 
 /* ── Form Panel ────────────────────────────────────── */
 .form-panel{
-  width:340px;min-width:280px;
+  width:360px;min-width:300px;
   background:var(--bg2);border-right:1px solid var(--border);
   display:flex;flex-direction:column;overflow:hidden;
   flex-shrink:0;
@@ -114,7 +114,7 @@ header{
   padding:.4rem .6rem;border-radius:5px;outline:none;
   transition:border-color .2s;
 }
-.field input:focus,.field textarea:focus{border-color:var(--accent);}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);}
 .field textarea{resize:vertical;min-height:70px;line-height:1.5;}
 .field input::placeholder,.field textarea::placeholder{color:var(--muted);}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
@@ -214,34 +214,26 @@ header{
 </head>
 <body>
 
-<!-- ── HEADER ─────────────────────────────────────── -->
 <header>
-  <div class="logo">AMG <span>Generator</span></div>
+  <div class="logo">CV & Portfolio <span>Generator</span></div>
   <div class="mode-toggle">
     <button class="mode-btn active" id="btn-cv" onclick="setMode('cv')">CV</button>
     <button class="mode-btn" id="btn-portfolio" onclick="setMode('portfolio')">Portfolio</button>
   </div>
   <div class="header-right">
     <select class="template-sel" id="template-sel" onchange="updateTemplate()">
-      <option value="amg-classic">AMG Classic (sombre)</option>
-      <option value="light-pro">Light Pro (clair)</option>
-    </select>
+      </select>
     <button class="btn-export btn-html" onclick="exportHTML()">⬇ HTML</button>
     <button class="btn-export btn-pdf" onclick="exportPDF()">🖨 PDF</button>
   </div>
 </header>
 
-<!-- ── APP BODY ───────────────────────────────────── -->
 <div class="app-body">
-
-  <!-- FORM PANEL -->
   <div class="form-panel">
     <div class="form-scroll" id="form-root">
-      <!-- Rendered dynamically by JS -->
-    </div>
+      </div>
   </div>
 
-  <!-- PREVIEW PANEL -->
   <div class="preview-panel">
     <div class="preview-toolbar">
       <span class="preview-label">Aperçu en direct</span>
@@ -251,80 +243,92 @@ header{
       <iframe id="preview" title="Aperçu"></iframe>
     </div>
   </div>
-
 </div>
 
 <script>
 /* ══════════════════════════════════════════════════
-   STATE
+   PROFILS ALÉATOIRES (ZÉRO DONNÉE PERSO PAR DÉFAUT)
+══════════════════════════════════════════════════ */
+const mockProfiles = [
+  {
+    cv: {
+      name: 'Thomas Maréchal', title: 'UX/UI Designer & Intégrateur Front', location: 'Lyon, France', phone: '+33 6 12 34 56 78', email: 'thomas.marechal@example.com', github: 'github.com/thomasm-design', linkedin: 'linkedin.com/in/thomasmarechal',
+      profile: "Designer d'interface passionné par l'accessibilité et la création d'expériences web interactives mémorables. Alliant un sens aigu de l'esthétique épurée à des compétences solides en HTML/CSS et React, j'optimise les parcours utilisateurs du wireframe jusqu'au déploiement final.",
+      devSkills: [{name:'HTML5 / CSS3', level:90}, {name:'JavaScript (ES6)', level:80}, {name:'React.js', level:75}, {name:'Tailwind CSS', level:85}],
+      tools: ['Figma', 'Adobe XD', 'Git', 'VS Code', 'Sass', 'Gulp'],
+      videoSkills: [{name:'After Effects', level:75}, {name:'Premiere Pro', level:65}],
+      languages: [{name:'Français', level:'Bilingue'}, {name:'Anglais', level:'Avancé'}],
+      softSkills: ['Créativité', 'Rigueur visuelle', 'Sens de l\'écoute'],
+      interests: 'Architecture d\'intérieur · Typographie · Photographie de rue · Motion design',
+      experiences: [
+        {title:'Product Designer Senior', company:'Pixel Craft Studio', date:'2024 - Présent', bullets:'Refonte complète de l\'application SaaS interne ayant augmenté la conversion de 22%\nCréation et maintenance d\'un Design System complet partagé entre designers et développeurs\nAnimation d\'ateliers de co-conception avec les clients clés'},
+        {title:'Designer UX/UI & Intégrateur', company:'Agence Web Horizon', date:'2022 - 2024', bullets:'Conception d\'interfaces e-commerce adaptatives pour plus de 15 clients\nIntégration pixel-perfect des maquettes validées sous des architectures modulaires'}
+      ],
+      education: [{degree:'Master Direction Artistique Numérique', school:'Gobelins Paris', year:'2022'}, {degree:'Licence Design Graphique', school:'Université de Lyon', year:'2020'}]
+    },
+    portfolio: {
+      name: 'Thomas M.', title: 'UX/UI Designer & Créatif Numérique', email: 'thomas.marechal@example.com', github: 'github.com/thomasm-design', linkedin: 'linkedin.com/in/thomasmarechal',
+      bio: "Créateur d'identités numériques raffinées et d'interfaces intuitives. Je transforme des problématiques complexes en solutions visuelles fluides.",
+      skills: ['Figma', 'UX Research', 'UI Design', 'HTML/CSS', 'Tailwind', 'React', 'After Effects', 'Motion Design'],
+      projects: [
+        {title:'SaaS FinTech - Nova', category:'dev', description:'Conception globale de l\'application de gestion de portefeuille crypto et intégration de la console.', tech:'Figma, React, Tailwind', link:'#'},
+        {title:'Refonte E-Commerce Craft', category:'design', description:'Maquettes et prototypage haute fidélité pour une marque de mobilier éco-responsable.', tech:'Figma, Notion', link:'#'},
+        {title:'Identité & Loop Animée', category:'video', description:'Création de la charte graphique globale et générique de marque en Motion Design.', tech:'After Effects, Illustrator', link:'#'}
+      ]
+    }
+  },
+  {
+    cv: {
+      name: 'Sophie Alami', title: 'Ingénieure Data Science & Solutions IA', location: 'Toulouse, France', phone: '+33 7 98 76 54 32', email: 'sophie.alami@example.ai', github: 'github.com/sophie-alami-ds', linkedin: 'linkedin.com/in/sophiealami',
+      profile: "Spécialiste en apprentissage automatique et ingénierie des données, diplômée en Intelligence Artificielle. Forte d'une expertise éprouvée dans le développement d'architectures de modèles de langage (LLM) locaux et la mise en place de pipelines de traitement de données de grande envergure (Big Data).",
+      devSkills: [{name:'Python (Scikit-Learn, PyTorch)', level:92}, {name:'SQL & NoSQL', level:85}, {name:'Docker / Kubernetes', level:70}, {name:'Apache Spark', level:65}],
+      tools: ['Linux', 'Git', 'Jupyter', 'Mlflow', 'AWS', 'Hadoop'],
+      videoSkills: [{name:'Photoshop (Visualisation)', level:50}],
+      languages: [{name:'Français', level:'Maternelle'}, {name:'Anglais', level:'Bilingue (TOEIC 980)'}],
+      softSkills: ['Esprit d\'analyse', 'Résolution de problèmes complexes', 'Autonomie'],
+      interests: 'Modèles RAG souverains · Algorithmes de graphes · Randonnée haute montagne · Échecs',
+      experiences: [
+        {title:'Data Scientist / Ingénieure IA', company:'Cyber Data Systems', date:'2023 - 2026', bullets:'Déploiement en production d\'un assistant IA local basé sur de la vectorisation de documents d\'entreprise (RAG)\nOptimisation d\'algorithmes de classification prédictive, réduisant le taux d\'erreur de traitement de 15%\nConception de pipelines ETL automatisés'},
+        {title:'Stagiaire Recherche Machine Learning', company:'Lab IA National', date:'2023 (6 mois)', bullets:'Analyse et traitement de jeux de données massifs non structurés (NLP)\nEntraînement de modèles de classification de texte thématiques'}
+      ],
+      education: [{degree:'Master Sciences de l\'Intelligence Artificielle', school:'ENSEEIHT', year:'2023'}, {degree:'Licence Mathématiques & Informatique', school:'Université Paul Sabatier', year:'2021'}]
+    },
+    portfolio: {
+      name: 'Sophie Alami', title: 'Ingénieure Intelligence Artificielle & Data', email: 'sophie.alami@example.ai', github: 'github.com/sophie-alami-ds', linkedin: 'linkedin.com/in/sophiealami',
+      bio: "Développeuse d'architectures prédictives et passionnée par l'IA souveraine. Je transforme la donnée brute en briques intelligentes exploitables.",
+      skills: ['Python', 'PyTorch', 'SQL', 'LLM locaux', 'RAG', 'Docker', 'Linux', 'Analyse de données'],
+      projects: [
+        {title:'Moteur RAG Souverain', category:'dev', description:'Mise en place d\'une architecture d\'extraction et indexation de données documentaires offline.', tech:'Python, LangChain, ChromaDB', link:'#'},
+        {title:'Pipeline Big Data Spark', category:'dev', description:'Traitement de flux de logs réseau en temps réel pour l\'analyse de comportements anormaux.', tech:'Apache Spark, Kafka', link:'#'}
+      ]
+    }
+  }
+];
+
+// Sélectionner un profil au hasard au chargement
+const randomProfile = mockProfiles[Math.floor(Math.random() * mockProfiles.length)];
+
+/* ══════════════════════════════════════════════════
+   STATE GLOBAL CONTROLEUR & CONFIGURATION
 ══════════════════════════════════════════════════ */
 let mode = 'cv';
-let cvTemplate = 'amg-classic';
-let portfolioTemplate = 'amg-dark';
+let cvTemplate = 'classic';
+let portfolioTemplate = 'dark-cinematic';
 
-const cv = {
-  name: 'AMOUSSOU-GUENOU Loïc Junior Mahouna',
-  title: 'Développeur Web & IA · Monteur Vidéo',
-  location: 'Cotonou, Bénin',
-  phone: '+229 01 94 60 92 69',
-  email: 'mahounaamg@gmail.com',
-  github: 'github.com/loic-amg',
-  linkedin: '',
-  profile: "Développeur Web & IA en Master 2 à l'ESGIS Bénin, avec 3 stages en entreprises ESN et agences publiques. Passionné par l'intelligence artificielle embarquée, l'automatisation et la création de contenu vidéo. Autonome, curieux et capable de monter rapidement en compétences sur de nouvelles technologies.",
-  devSkills: [
-    {name:'Python', level:85},
-    {name:'Node.js', level:72},
-    {name:'AngularJS', level:68},
-    {name:'Rust', level:60},
-    {name:'Spring Boot / Java', level:55},
-  ],
-  tools: ['PHP','SQL','Linux','Conda','WordPress','JSDoc','CKAN'],
-  videoSkills: [
-    {name:'Premiere Pro', level:80},
-    {name:'After Effects', level:70},
-    {name:'Photoshop', level:65},
-  ],
-  languages: [
-    {name:'Français', level:'Avancé'},
-    {name:'Anglais', level:'Débutant'},
-  ],
-  softSkills: ['Fiable & Responsable','Esprit d\'équipe','Autonome & Polyvalent'],
-  interests: 'Cybersécurité · LLM locaux · Web design · Lecture · Musique · Jeux vidéo',
-  experiences: [
-    {title:'Stagiaire Développeur Junior', company:'PERO-GROUPE (ESN)', date:'Janv. – Avr. 2025',
-     bullets:"Intégration de composants AngularJS sur le projet Forseti\nDocumentation technique Front-End avec JSDoc\nPersonnalisation de thèmes WordPress & gestion d'API REST"},
-    {title:'Stagiaire Développeur Junior', company:'METEO-Bénin', date:'Sept. – Oct. 2024',
-     bullets:"Apprentissage Python appliqué à la gestion de données climatiques\nConception de scripts d'automatisation sous Excel"},
-    {title:'Stagiaire Développeur Junior', company:'PERO-GROUPE (ESN)', date:'Mars – Juil. 2024',
-     bullets:"Apprentissage AngularJS & Spring Boot\nGestion de rapports qualitatifs sur SINEB\nInstallation de CKAN sur serveur Linux"},
-  ],
-  education: [
-    {degree:'Master 2 Intelligence Artificielle', school:'ESGIS Bénin', year:'EN COURS'},
-    {degree:'Master 1 Intelligence Artificielle', school:'ESGIS Bénin', year:'OBTENU'},
-    {degree:'Licence Architecture Logicielle', school:'ESGIS Bénin', year:'2024'},
-    {degree:'Baccalauréat Scientifique', school:'Lycée', year:'2021'},
-  ],
-};
+const cv = JSON.parse(JSON.stringify(randomProfile.cv));
+const portfolio = JSON.parse(JSON.stringify(randomProfile.portfolio));
 
-const portfolio = {
-  name: 'Loïc AMG',
-  title: 'Développeur Web & IA · Monteur Vidéo',
-  email: 'mahounaamg@gmail.com',
-  github: 'github.com/loic-amg',
-  linkedin: '',
-  bio: "Passionné par l'intelligence artificielle, le développement web et la création de contenu vidéo. Actuellement en Master 2 IA à l'ESGIS Bénin.",
-  skills: ['Python','Node.js','AngularJS','Rust','Java','PHP','SQL','Linux','Premiere Pro','After Effects'],
-  projects: [
-    {title:'Assistant ARK', category:'dev', description:"Assistant personnel IA à architecture souveraine et offline-first. Orchestrateur en Rust, backend Ollama, pipeline RAG/GraphRAG.", tech:'Rust, Python, Ollama, Node.js', link:''},
-    {title:'Détection criminelle par IA', category:'dev', description:"Protocole de recherche M2 — utilisation des modèles d'IA pour la détection de schémas criminels au Bénin.", tech:'Python, ML, NLP', link:''},
-    {title:'Plateforme SINEB', category:'dev', description:"Gestion de rapports qualitatifs et déploiement CKAN sur Linux lors du stage PERO-GROUPE.", tech:'AngularJS, Spring Boot, Linux', link:''},
-    {title:'Montage & Reels', category:'video', description:"Création de contenus vidéo courts avec motion design et effets cinématiques.", tech:'Premiere Pro, After Effects', link:''},
-    {title:'Identité visuelle & Retouche', category:'video', description:"Design d'identités visuelles et retouche photo pour projets personnels et professionnels.", tech:'Photoshop, Design', link:''},
-  ],
+// Options d'interopérabilité demandées (customisation dynamique directe par le site)
+let customDesign = {
+  accentColor: '#2d8cf0',
+  fontFamily: 'outfit-syne', // outfit-syne, playfair, montserrat, bebas-roboto
+  showInterests: true,
+  showSoftSkills: true,
+  customLayoutOrder: 'normal' // normal ou inverse (cross-model structural modification)
 };
 
 /* ══════════════════════════════════════════════════
-   FORM RENDERING
+   FORM RENDERING & ACCORDIONS
 ══════════════════════════════════════════════════ */
 function sec(icon, title, id, content) {
   return `<div class="section open" id="sec-${id}">
@@ -367,7 +371,7 @@ function renderTagsInput(arrKey, obj='cv') {
   return `<div class="tags-wrap" onclick="this.querySelector('.tags-input').focus()">
     ${tags}
     <input class="tags-input" type="text" placeholder="Ajouter…" onkeydown="addTag(event,'${arrKey}','${obj}')">
-  </div><div class="tags-hint">Appuyer Entrée ou virgule pour ajouter</div>`;
+  </div><div class="tags-hint">Entrée ou virgule pour insérer</div>`;
 }
 
 function renderExpItems() {
@@ -377,28 +381,28 @@ function renderExpItems() {
         <span class="dyn-item-label">Expérience ${i+1}</span>
         <button class="btn-rm" onclick="cv.experiences.splice(${i},1);renderForm();updatePreview()">✕</button>
       </div>
-      ${field('Titre du poste',`<input type="text" value="${esc(e.title)}" oninput="cv.experiences[${i}].title=this.value;updatePreview()">`)}
-      ${field('Entreprise',`<input type="text" value="${esc(e.company)}" oninput="cv.experiences[${i}].company=this.value;updatePreview()">`)}
-      ${field('Période',`<input type="text" value="${esc(e.date)}" oninput="cv.experiences[${i}].date=this.value;updatePreview()">`)}
-      ${field('Missions (une par ligne)',`<textarea oninput="cv.experiences[${i}].bullets=this.value;updatePreview()">${esc(e.bullets)}</textarea>`)}
+      ${field('Poste',`<input type="text" value="${esc(e.title)}" oninput="cv.experiences[${i}].title=this.value;updatePreview()">`)}
+      ${field('Structure',`<input type="text" value="${esc(e.company)}" oninput="cv.experiences[${i}].company=this.value;updatePreview()">`)}
+      ${field('Dates / Période',`<input type="text" value="${esc(e.date)}" oninput="cv.experiences[${i}].date=this.value;updatePreview()">`)}
+      ${field('Missions (1 par ligne)',`<textarea oninput="cv.experiences[${i}].bullets=this.value;updatePreview()">${esc(e.bullets)}</textarea>`)}
     </div>`).join('')
-  + `<button class="btn-add" onclick="cv.experiences.push({title:'',company:'',date:'',bullets:''});renderForm();updatePreview()">+ Ajouter une expérience</button>`;
+  + `<button class="btn-add" onclick="cv.experiences.push({title:'',company:'',date:'',bullets:''});renderForm();updatePreview()">+ Ajouter</button>`;
 }
 
 function renderEduItems() {
   return cv.education.map((e,i)=>`
     <div class="dyn-item">
       <div class="dyn-item-head">
-        <span class="dyn-item-label">Formation ${i+1}</span>
+        <span class="dyn-item-label">Cursus ${i+1}</span>
         <button class="btn-rm" onclick="cv.education.splice(${i},1);renderForm();updatePreview()">✕</button>
       </div>
-      ${field('Diplôme / Formation',`<input type="text" value="${esc(e.degree)}" oninput="cv.education[${i}].degree=this.value;updatePreview()">`)}
+      ${field('Diplôme obtenu',`<input type="text" value="${esc(e.degree)}" oninput="cv.education[${i}].degree=this.value;updatePreview()">`)}
       <div class="field-row">
-        ${field('École',`<input type="text" value="${esc(e.school)}" oninput="cv.education[${i}].school=this.value;updatePreview()">`)}
+        ${field('Établissement',`<input type="text" value="${esc(e.school)}" oninput="cv.education[${i}].school=this.value;updatePreview()">`)}
         ${field('Année',`<input type="text" value="${esc(e.year)}" oninput="cv.education[${i}].year=this.value;updatePreview()">`)}
       </div>
     </div>`).join('')
-  + `<button class="btn-add" onclick="cv.education.push({degree:'',school:'',year:''});renderForm();updatePreview()">+ Ajouter une formation</button>`;
+  + `<button class="btn-add" onclick="cv.education.push({degree:'',school:'',year:''});renderForm();updatePreview()">+ Ajouter</button>`;
 }
 
 function renderLangItems() {
@@ -418,69 +422,97 @@ function renderProjectItems() {
         <span class="dyn-item-label">Projet ${i+1}</span>
         <button class="btn-rm" onclick="portfolio.projects.splice(${i},1);renderForm();updatePreview()">✕</button>
       </div>
-      ${field('Titre',`<input type="text" value="${esc(p.title)}" oninput="portfolio.projects[${i}].title=this.value;updatePreview()">`)}
+      ${field('Nom du projet',`<input type="text" value="${esc(p.title)}" oninput="portfolio.projects[${i}].title=this.value;updatePreview()">`)}
       <div class="field-row">
         ${field('Catégorie',`<input type="text" value="${esc(p.category)}" placeholder="dev / video / design" oninput="portfolio.projects[${i}].category=this.value;updatePreview()">`)}
-        ${field('Lien',`<input type="text" value="${esc(p.link)}" placeholder="https://..." oninput="portfolio.projects[${i}].link=this.value;updatePreview()">`)}
+        ${field('Lien média / Drive / Page',`<input type="text" value="${esc(p.link)}" placeholder="https://..." oninput="portfolio.projects[${i}].link=this.value;updatePreview()">`)}
       </div>
-      ${field('Description',`<textarea oninput="portfolio.projects[${i}].description=this.value;updatePreview()">${esc(p.description)}</textarea>`)}
-      ${field('Technologies (virgules)',`<input type="text" value="${esc(p.tech)}" oninput="portfolio.projects[${i}].tech=this.value;updatePreview()">`)}
+      ${field('Courte description',`<textarea oninput="portfolio.projects[${i}].description=this.value;updatePreview()">${esc(p.description)}</textarea>`)}
+      ${field('Technologies utilisées (virgules)',`<input type="text" value="${esc(p.tech)}" oninput="portfolio.projects[${i}].tech=this.value;updatePreview()">`)}
     </div>`).join('')
   + `<button class="btn-add" onclick="portfolio.projects.push({title:'',category:'dev',description:'',tech:'',link:''});renderForm();updatePreview()">+ Ajouter un projet</button>`;
 }
 
 function renderForm() {
   const root = document.getElementById('form-root');
+  
+  // Section commune de personnalisation multi-modèles (Interopérabilité et modifications directes réclamées)
+  const designSection = sec('🎨', 'Design & Éléments Croisés', 'custom-design', `
+    <div class="field">
+      <label>Couleur principale (Axe du modèle)</label>
+      <input type="color" value="${customDesign.accentColor}" oninput="customDesign.accentColor=this.value;updatePreview()">
+    </div>
+    <div class="field">
+      <label>Combinaison Typographique</label>
+      <select onchange="customDesign.fontFamily=this.value;updatePreview()">
+        <option value="outfit-syne" ${customDesign.fontFamily==='outfit-syne'?'selected':''}>Outfit & Syne (Moderne)</option>
+        <option value="playfair" ${customDesign.fontFamily==='playfair'?'selected':''}>Playfair & Outfit (Élégant Éditorial)</option>
+        <option value="montserrat" ${customDesign.fontFamily==='montserrat'?'selected':''}>Montserrat Strict (Pro Épuré)</option>
+        <option value="bebas-roboto" ${customDesign.fontFamily==='bebas-roboto'?'selected':''}>Bebas Neue & Roboto (Impact Média)</option>
+      </select>
+    </div>
+    <div class="field" style="display:flex; align-items:center; gap:.5rem; margin-top:.5rem;">
+      <input type="checkbox" id="chk-interests" ${customDesign.showInterests?'checked':''} onchange="customDesign.showInterests=this.checked;updatePreview()" style="width:auto;">
+      <label for="chk-interests" style="margin-bottom:0; cursor:pointer;">Afficher les centres d'intérêt</label>
+    </div>
+    <div class="field" style="display:flex; align-items:center; gap:.5rem;">
+      <input type="checkbox" id="chk-soft" ${customDesign.showSoftSkills?'checked':''} onchange="customDesign.showSoftSkills=this.checked;updatePreview()" style="width:auto;">
+      <label for="chk-soft" style="margin-bottom:0; cursor:pointer;">Afficher les Qualités (Soft Skills)</label>
+    </div>
+    <div class="field">
+      <label>Structure / Ordre des colonnes</label>
+      <select onchange="customDesign.customLayoutOrder=this.value;updatePreview()">
+        <option value="normal" ${customDesign.customLayoutOrder==='normal'?'selected':''}>Mise en page Standard</option>
+        <option value="inverse" ${customDesign.customLayoutOrder==='inverse'?'selected':''}>Inverser les blocs structuraux</option>
+      </select>
+    </div>
+  `);
+
   if (mode === 'cv') {
-    root.innerHTML = [
-      sec('👤','Identité','identity',`
-        ${field('Nom complet',inp('name','Jean Dupont'))}
-        ${field('Titre / Poste',inp('title','Développeur Web & IA'))}
+    root.innerHTML = designSection + [
+      sec('👤','Identité (Données Aléatoires)','identity',`
+        ${field('Nom complet',inp('name','Ex: Alice Marchand'))}
+        ${field('Intitulé du poste recherché',inp('title','Ex: Ingénieur Logiciel'))}
         <div class="field-row">
-          ${field('Localisation',inp('location','Cotonou, Bénin'))}
-          ${field('Téléphone',inp('phone','+229...'))}
+          ${field('Localisation',inp('location','Paris, France'))}
+          ${field('Téléphone',inp('phone','+33 6...'))}
         </div>
-        ${field('Email',inp('email','email@exemple.com'))}
+        ${field('Adresse Électronique',inp('email','contact@exemple.com'))}
         <div class="field-row">
-          ${field('GitHub',inp('github','github.com/username'))}
-          ${field('LinkedIn',inp('linkedin','linkedin.com/in/...'))}
+          ${field('Lien GitHub',inp('github','github.com/...'))}
+          ${field('Lien LinkedIn',inp('linkedin','linkedin.com/in/...'))}
         </div>
       `),
-      sec('📝','Profil','profile', field('Résumé professionnel',ta('profile','Décrivez votre profil…'))),
-      sec('💻','Compétences Dev & IA','devskills', renderSkillRows(cv.devSkills,'devSkills',"cv.devSkills.push({name:'',level:70})")),
-      sec('🔧','Outils','tools',`
-        ${field('Tags outils', renderTagsInput('tools','cv'))}
-      `),
-      sec('🎬','Compétences Vidéo','videoskills', renderSkillRows(cv.videoSkills,'videoSkills',"cv.videoSkills.push({name:'',level:70})")),
-      sec('💼','Expériences','experiences', renderExpItems()),
-      sec('🎓','Formation','education', renderEduItems()),
-      sec('🌐','Langues','languages', renderLangItems()),
+      sec('📝','Profil & Accroche','profile', field('Résumé professionnel',ta('profile','Présentez brièvement vos compétences clés…'))),
+      sec('💻','Compétences Techniques','devskills', renderSkillRows(cv.devSkills,'devSkills',"cv.devSkills.push({name:'',level:70})")),
+      sec('🔧','Boîte à Outils','tools', field('Outils & Environnements', renderTagsInput('tools','cv'))),
+      sec('🎬','Compétences Secondaires','videoskills', renderSkillRows(cv.videoSkills,'videoSkills',"cv.videoSkills.push({name:'',level:70})")),
+      sec('💼','Parcours Professionnel','experiences', renderExpItems()),
+      sec('🎓','Formations & Diplômes','education', renderEduItems()),
+      sec('🌐','Compétences Linguistiques','languages', renderLangItems()),
       sec('✨','Qualités & Intérêts','soft',`
-        ${field('Soft skills (tags)',renderTagsInput('softSkills','cv'))}
-        ${field('Intérêts',`<input type="text" value="${esc(cv.interests)}" placeholder="Lecture, Musique…" oninput="cv.interests=this.value;updatePreview()">`)}
+        ${field('Qualités personnelles (tags)',renderTagsInput('softSkills','cv'))}
+        ${field('Centres d\'intérêt',`<input type="text" value="${esc(cv.interests)}" placeholder="Sport, Cinéma…" oninput="cv.interests=this.value;updatePreview()">`)}
       `),
     ].join('');
   } else {
-    root.innerHTML = [
-      sec('👤','Identité','pf-identity',`
-        ${field('Nom / Pseudonyme',`<input type="text" value="${esc(portfolio.name)}" oninput="portfolio.name=this.value;updatePreview()">`)}
-        ${field('Titre / Tagline',`<input type="text" value="${esc(portfolio.title)}" oninput="portfolio.title=this.value;updatePreview()">`)}
-        ${field('Email',`<input type="text" value="${esc(portfolio.email)}" oninput="portfolio.email=this.value;updatePreview()">`)}
+    root.innerHTML = designSection + [
+      sec('👤','Identité Visuelle','pf-identity',`
+        ${field('Nom / Identifiant de Marque',`<input type="text" value="${esc(portfolio.name)}" oninput="portfolio.name=this.value;updatePreview()">`)}
+        ${field('Slogan / Spécialité',`<input type="text" value="${esc(portfolio.title)}" oninput="portfolio.title=this.value;updatePreview()">`)}
+        ${field('Email de contact',`<input type="text" value="${esc(portfolio.email)}" oninput="portfolio.email=this.value;updatePreview()">`)}
         <div class="field-row">
-          ${field('GitHub',`<input type="text" value="${esc(portfolio.github)}" oninput="portfolio.github=this.value;updatePreview()">`)}
-          ${field('LinkedIn',`<input type="text" value="${esc(portfolio.linkedin)}" oninput="portfolio.linkedin=this.value;updatePreview()">`)}
+          ${field('Dépôt GitHub',`<input type="text" value="${esc(portfolio.github)}" oninput="portfolio.github=this.value;updatePreview()">`)}
+          ${field('Profil LinkedIn',`<input type="text" value="${esc(portfolio.linkedin)}" oninput="portfolio.linkedin=this.value;updatePreview()">`)}
         </div>
       `),
-      sec('📝','Bio','pf-bio', field('À propos',`<textarea oninput="portfolio.bio=this.value;updatePreview()">${esc(portfolio.bio)}</textarea>`)),
-      sec('🛠','Compétences','pf-skills', field('Tags skills',renderTagsInput('skills','portfolio'))),
-      sec('🚀','Projets','pf-projects', renderProjectItems()),
+      sec('📝','Biographie de Présentation','pf-bio', field('À propos de moi',`<textarea oninput="portfolio.bio=this.value;updatePreview()">${esc(portfolio.bio)}</textarea>`)),
+      sec('🛠','Compétences Globales','pf-skills', field('Mots-clés de compétences',renderTagsInput('skills','portfolio'))),
+      sec('🚀','Galerie de Créations','pf-projects', renderProjectItems()),
     ].join('');
   }
 }
 
-/* ══════════════════════════════════════════════════
-   TAG HELPERS
-══════════════════════════════════════════════════ */
 function addTag(e, key, obj='cv') {
   if(e.key==='Enter'||e.key===',') {
     e.preventDefault();
@@ -491,45 +523,62 @@ function addTag(e, key, obj='cv') {
 function rmTag(key, i, obj='cv') {
   (obj==='cv'?cv:portfolio)[key].splice(i,1); renderForm(); updatePreview();
 }
-
-/* ══════════════════════════════════════════════════
-   TOGGLE SECTION
-══════════════════════════════════════════════════ */
 function toggleSec(id) {
   document.getElementById('sec-'+id).classList.toggle('open');
 }
 
 /* ══════════════════════════════════════════════════
-   MODE & TEMPLATE
+   GÉRER LES POLICES ET STYLES DE BASE INJECTÉS
+══════════════════════════════════════════════════ */
+function getCustomFontCSS() {
+  switch(customDesign.fontFamily) {
+    case 'playfair': return "body, html { font-family: 'Outfit', sans-serif; } h1, h2, h3, .title-font { font-family: 'Playfair Display', serif; }";
+    case 'montserrat': return "body, html, h1, h2, h3 { font-family: 'Montserrat', sans-serif; }";
+    case 'bebas-roboto': return "body, html { font-family: 'Roboto', sans-serif; } h1, h2, h3, .title-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }";
+    default: return "body, html { font-family: 'Outfit', sans-serif; } h1, h2, h3, .title-font { font-family: 'Syne', sans-serif; }";
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   MODE & NAVIGATION DES TEMPLATES
 ══════════════════════════════════════════════════ */
 function setMode(m) {
   mode = m;
   document.getElementById('btn-cv').classList.toggle('active', m==='cv');
   document.getElementById('btn-portfolio').classList.toggle('active', m==='portfolio');
+  
   const sel = document.getElementById('template-sel');
   if(m==='cv'){
-    sel.innerHTML='<option value="amg-classic">AMG Classic (sombre)</option><option value="light-pro">Light Pro (clair)</option>';
+    sel.innerHTML=`
+      <option value="classic">Classic</option>
+      <option value="light-pro">Light Pro</option>
+      <option value="creative-emerald">Creative Emerald</option>
+      <option value="editorial-serif">Editorial Serif</option>
+    `;
     sel.value = cvTemplate;
   } else {
-    sel.innerHTML='<option value="amg-dark">AMG Dark (cinématique)</option><option value="minimal">Minimal (clair)</option>';
+    sel.innerHTML=`
+      <option value="dark-cinematic">Dark Cinematic</option>
+      <option value="minimal">Minimal</option>
+      <option value="masonry-visual">Masonry Visual</option>
+      <option value="adobe-sidebar">Adobe Left-Sidebar</option>
+    `;
     sel.value = portfolioTemplate;
   }
   renderForm();
   updatePreview();
 }
+
 function updateTemplate() {
   const v = document.getElementById('template-sel').value;
   if(mode==='cv') cvTemplate=v; else portfolioTemplate=v;
   updatePreview();
 }
 
-/* ══════════════════════════════════════════════════
-   PREVIEW
-══════════════════════════════════════════════════ */
 let previewTimer = null;
 function updatePreview() {
   clearTimeout(previewTimer);
-  previewTimer = setTimeout(_doPreview, 80);
+  previewTimer = setTimeout(_doPreview, 100);
 }
 
 function _doPreview() {
@@ -537,23 +586,20 @@ function _doPreview() {
   const html = mode==='cv' ? renderCVTemplate() : renderPortfolioTemplate();
   if (mode==='cv') {
     iframe.style.width='210mm'; iframe.style.height='297mm';
-    document.getElementById('preview-size').textContent='A4 · 210×297mm';
+    document.getElementById('preview-size').textContent='Format A4 strict (Impression PDF)';
   } else {
-    iframe.style.width='900px'; iframe.style.height='600px';
-    document.getElementById('preview-size').textContent='Web · 900px';
+    iframe.style.width='950px'; iframe.style.height='620px';
+    document.getElementById('preview-size').textContent='Rendu Écran Web Élastique';
   }
   iframe.srcdoc = html;
 }
 
-/* ══════════════════════════════════════════════════
-   EXPORT
-══════════════════════════════════════════════════ */
 function exportHTML() {
   const html = mode==='cv' ? renderCVTemplate() : renderPortfolioTemplate();
   const blob = new Blob([html], {type:'text/html;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = mode==='cv' ? 'cv.html' : 'portfolio.html';
+  a.download = mode==='cv' ? 'cv_export.html' : 'portfolio_export.html';
   a.click();
 }
 
@@ -563,378 +609,396 @@ function exportPDF() {
   win.document.write(html);
   win.document.close();
   win.focus();
-  setTimeout(()=>{ win.print(); }, 800);
+  setTimeout(()=>{ win.print(); }, 750);
 }
 
 /* ══════════════════════════════════════════════════
-   CV TEMPLATE — AMG CLASSIC (DARK SIDEBAR)
+   MOTEURS DE RENDU : CV TEMPLATES (4 MODÈLES)
 ══════════════════════════════════════════════════ */
 function renderCVTemplate() {
-  if(cvTemplate==='light-pro') return renderCVLightPro();
-  return renderCVAMGClassic();
+  switch(cvTemplate) {
+    case 'light-pro': return renderCVLightPro();
+    case 'creative-emerald': return renderCVCreativeEmerald();
+    case 'editorial-serif': return renderCVEditorialSerif();
+    default: return renderCVClassic();
+  }
 }
 
-function renderCVAMGClassic() {
+// 1. CLASSIC (Anciennement AMG Classic) [cite: 54]
+function renderCVClassic() {
+  const accent = customDesign.accentColor;
+  const isInverse = customDesign.customLayoutOrder === 'inverse';
+  
   const skillBars = cv.devSkills.map(s=>`
     <div class="s-skill">
       <div class="s-skill-name">${s.name}</div>
-      <div class="s-skill-bar"><div class="s-skill-fill" style="width:${s.level}%"></div></div>
+      <div class="s-skill-bar"><div class="s-skill-fill" style="width:${s.level}%; background:${accent};"></div></div>
     </div>`).join('');
-  const videoSkillBars = cv.videoSkills.map(s=>`
-    <div class="s-skill">
-      <div class="s-skill-name">${s.name}</div>
-      <div class="s-skill-bar"><div class="s-skill-fill" style="width:${s.level}%"></div></div>
-    </div>`).join('');
-  const toolTags = cv.tools.map(t=>`<span class="s-tag">${t}</span>`).join('');
-  const langItems = cv.languages.map(l=>`
-    <div class="s-lang">
-      <span class="s-lang-name">${l.name}</span>
-      <span class="s-lang-level">${l.level}</span>
-    </div>`).join('');
-  const softItems = cv.softSkills.map(s=>`<span>${s}</span><br>`).join('');
+  
+  const toolTags = cv.tools.map(t=>`<span class="s-tag" style="border-color:${accent}44; color:${accent}dd">${t}</span>`).join('');
+  
   const xpItems = cv.experiences.map(x=>`
     <div class="xp-item">
       <div class="xp-header">
         <div class="xp-title">${x.title}</div>
-        <div class="xp-date">${x.date}</div>
+        <div class="xp-date" style="color:${accent};">${x.date}</div>
       </div>
       <div class="xp-company">${x.company}</div>
       <ul class="xp-bullets">
         ${x.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li>${b.trim()}</li>`).join('')}
       </ul>
     </div>`).join('');
-  const eduItems = cv.education.map(e=>`
-    <div class="edu-item">
-      <div class="edu-degree">${e.degree}</div>
-      <div class="edu-school">${e.school}</div>
-      <div class="edu-year">${e.year}</div>
-    </div>`).join('');
-  const contactRows = [
-    cv.location && `<div class="s-contact-item"><span class="ico">📍</span><span>${cv.location}</span></div>`,
-    cv.phone && `<div class="s-contact-item"><span class="ico">📞</span><span>${cv.phone}</span></div>`,
-    cv.email && `<div class="s-contact-item"><span class="ico">✉️</span><span>${cv.email}</span></div>`,
-    cv.github && `<div class="s-contact-item"><span class="ico">🔗</span><span>${cv.github}</span></div>`,
-    cv.linkedin && `<div class="s-contact-item"><span class="ico">💼</span><span>${cv.linkedin}</span></div>`,
-  ].filter(Boolean).join('');
 
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-<title>CV — ${cv.name}</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;500&family=Playfair+Display&family=Montserrat&family=Bebas+Neue&family=Roboto" rel="stylesheet">
 <style>
-:root{--blue:#2d8cf0;--blue-d:#1464cc;--dark:#0f1923;--sidebar:#111b26;--text:#1c2a35;--muted:#5a6e7e;--border:#dde4ea;--bg:#f4f7fa;--white:#ffffff;}
+${getCustomFontCSS()}
+:root{--accent:${accent};--sidebar:#111b26;--text:#1c2a35;--muted:#5a6e7e;--border:#dde4ea;--white:#ffffff;}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{background:#cdd4da;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:2rem;font-family:'Outfit',sans-serif;}
-.cv-page{width:210mm;min-height:297mm;background:var(--white);display:flex;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);}
-.sidebar{width:68mm;min-width:68mm;background:var(--sidebar);color:#c8d6e5;padding:9mm 6.5mm;display:flex;flex-direction:column;gap:5mm;position:relative;overflow:hidden;}
-.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue);}
-.s-name{font-family:'Syne',sans-serif;font-weight:800;font-size:13pt;color:var(--white);line-height:1.15;letter-spacing:-.02em;}
-.s-title{font-size:7pt;font-weight:500;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-top:2mm;line-height:1.5;}
-.s-divider{height:1px;background:rgba(255,255,255,.07);margin:.5mm 0;}
-.s-section-title{font-size:6pt;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:2mm;}
-.s-contact-item{display:flex;align-items:flex-start;gap:2mm;font-size:7.5pt;color:#a8bdd1;margin-bottom:1.5mm;line-height:1.35;}
-.s-contact-item .ico{font-size:7pt;color:var(--blue);margin-top:.5pt;width:10px;flex-shrink:0;}
+body{background:#fff;font-size:14px;color:var(--text);-webkit-print-color-adjust:exact;}
+.cv-page{width:210mm;height:297mm;display:flex;flex-direction:${isInverse?'row-reverse':'row'};overflow:hidden;}
+.sidebar{width:68mm;background:var(--sidebar);color:#c8d6e5;padding:8mm 6mm;display:flex;flex-direction:column;gap:4mm;}
+.s-name{font-size:14pt;font-weight:800;color:var(--white);line-height:1.2;}
+.s-title{font-size:7.5pt;font-weight:600;color:var(--accent);letter-spacing:.05em;text-transform:uppercase;margin-top:2mm;}
+.s-divider{height:1px;background:rgba(255,255,255,.07);margin:2mm 0;}
+.s-section-title{font-size:7pt;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:2mm;}
+.s-contact-item{font-size:7.5pt;color:#a8bdd1;margin-bottom:1.5mm;}
 .s-skill{margin-bottom:2mm;}
-.s-skill-name{font-size:7.5pt;color:#c8d6e5;margin-bottom:1mm;}
-.s-skill-bar{height:2.5px;background:rgba(255,255,255,.1);border-radius:2px;}
-.s-skill-fill{height:100%;background:linear-gradient(90deg,var(--blue),#58a6ff);border-radius:2px;}
+.s-skill-name{font-size:7.5pt;margin-bottom:1mm;}
+.s-skill-bar{height:3px;background:rgba(255,255,255,.1);border-radius:2px;}
+.s-skill-fill{height:100%;border-radius:2px;}
 .s-tags{display:flex;flex-wrap:wrap;gap:1.5mm;}
-.s-tag{font-size:6.5pt;padding:1mm 2mm;background:rgba(45,140,240,.15);border:1px solid rgba(45,140,240,.25);color:#7eb8ff;border-radius:2px;}
-.s-soft{font-size:7.5pt;color:#a8bdd1;line-height:1.9;}
-.s-soft span::before{content:'· ';color:var(--blue);}
-.s-lang{display:flex;justify-content:space-between;align-items:center;margin-bottom:2mm;}
-.s-lang-name{font-size:7.5pt;color:#c8d6e5;}
-.s-lang-level{font-size:6pt;font-weight:600;letter-spacing:.06em;padding:.8mm 1.8mm;background:rgba(45,140,240,.2);color:#7eb8ff;border-radius:2px;}
-.s-interests{font-size:7pt;color:#7a9bb5;line-height:1.8;}
-.main{flex:1;padding:9mm 8mm 6mm;display:flex;flex-direction:column;gap:5mm;overflow:hidden;}
-.m-section-title{font-family:'Syne',sans-serif;font-size:8pt;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--blue);padding-bottom:1.5mm;border-bottom:1.5px solid var(--blue);margin-bottom:3mm;}
-.m-profile{font-size:8pt;color:var(--muted);line-height:1.75;}
-.xp-item{margin-bottom:3.5mm;padding-left:3.5mm;position:relative;}
-.xp-item::before{content:'';position:absolute;left:0;top:3.5pt;width:5px;height:5px;border-radius:50%;background:var(--blue);border:1.5px solid var(--white);box-shadow:0 0 0 1px var(--blue);}
-.xp-item::after{content:'';position:absolute;left:2px;top:9pt;width:1px;bottom:-3.5mm;background:var(--border);}
-.xp-item:last-child::after{display:none;}
-.xp-header{display:flex;justify-content:space-between;align-items:flex-start;}
-.xp-title{font-family:'Syne',sans-serif;font-size:8.5pt;font-weight:700;color:var(--text);}
-.xp-date{font-size:6.5pt;font-weight:600;color:var(--blue);white-space:nowrap;letter-spacing:.04em;}
-.xp-company{font-size:7pt;color:var(--muted);margin-top:.5mm;font-style:italic;}
-.xp-bullets{margin-top:1.5mm;list-style:none;}
-.xp-bullets li{font-size:7.5pt;color:var(--muted);padding:.5mm 0 .5mm 2.5mm;position:relative;line-height:1.45;}
-.xp-bullets li::before{content:'›';position:absolute;left:0;color:var(--blue);font-weight:700;}
-.edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5mm;}
-.edu-item{padding:2.5mm 3mm;background:var(--bg);border-left:2.5px solid var(--blue);border-radius:0 3px 3px 0;}
-.edu-degree{font-size:7.5pt;font-weight:600;color:var(--text);line-height:1.3;}
-.edu-school{font-size:6.5pt;color:var(--muted);margin-top:.5mm;}
-.edu-year{font-size:6pt;font-weight:600;color:var(--blue);margin-top:.5mm;letter-spacing:.05em;}
-@media print{body{background:white;padding:0;}.cv-page{box-shadow:none;}}
+.s-tag{font-size:6.5pt;padding:1mm 2mm;background:rgba(255,255,255,.04);border:1px solid;border-radius:2px;}
+.main{flex:1;padding:9mm 8mm;display:flex;flex-direction:column;gap:5mm;}
+.m-section-title{font-size:8.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);padding-bottom:1mm;border-bottom:1.5px solid var(--accent);margin-bottom:2.5mm;}
+.m-profile{font-size:8pt;color:var(--muted);line-height:1.6;}
+.xp-item{margin-bottom:3mm;position:relative;padding-left:3mm;}
+.xp-item::before{content:'';position:absolute;left:0;top:4px;width:5px;height:5px;border-radius:50%;background:var(--accent);}
+.xp-header{display:flex;justify-content:space-between;}
+.xp-title{font-size:8.5pt;font-weight:700;color:var(--text);}
+.xp-date{font-size:7pt;font-weight:600;}
+.xp-company{font-size:7.5pt;color:var(--muted);font-style:italic;}
+.xp-bullets{margin-top:1mm;list-style:none;padding-left:2mm;}
+.xp-bullets li{font-size:7.5pt;color:var(--muted);line-height:1.4;position:relative;margin-bottom:0.5mm;}
+.xp-bullets li::before{content:'•';position:absolute;left:-2mm;color:var(--accent);}
+.edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:2mm;}
+.edu-item{padding:2mm;background:#f4f7fa;border-left:2px solid var(--accent);}
+.edu-degree{font-size:7.5pt;font-weight:600;}
+.edu-school{font-size:7pt;color:var(--muted);}
+.edu-year{font-size:6.5pt;color:var(--accent);font-weight:600;}
 </style></head>
 <body><div class="cv-page">
 <aside class="sidebar">
-  <div>
-    <div class="s-name">${cv.name.replace(/\s+/g,'<br>').replace('<br>','<br>').slice(0,100)}</div>
-    <div class="s-title">${cv.title}</div>
-  </div>
+  <div><div class="s-name title-font">${cv.name}</div><div class="s-title">${cv.title}</div></div>
   <div class="s-divider"></div>
-  <div>
-    <div class="s-section-title">Contact</div>
-    ${contactRows}
-  </div>
+  <div><div class="s-section-title">Contact</div><div class="s-contact-item">📍 ${cv.location}</div><div class="s-contact-item">📞 ${cv.phone}</div><div class="s-contact-item">✉ ${cv.email}</div></div>
   <div class="s-divider"></div>
-  ${cv.devSkills.length ? `<div><div class="s-section-title">Dev & IA</div>${skillBars}</div>` : ''}
-  ${cv.tools.length ? `<div><div class="s-section-title">Outils</div><div class="s-tags">${toolTags}</div></div>` : ''}
-  ${cv.videoSkills.length ? `<div><div class="s-section-title">Vidéo & Design</div>${videoSkillBars}</div>` : ''}
+  <div><div class="s-section-title">Compétences</div>${skillBars}</div>
   <div class="s-divider"></div>
-  ${cv.languages.length ? `<div><div class="s-section-title">Langues</div>${langItems}</div>` : ''}
-  <div class="s-divider"></div>
-  ${cv.softSkills.length ? `<div><div class="s-section-title">Qualités</div><div class="s-soft">${softItems}</div></div>` : ''}
-  ${cv.interests ? `<div><div class="s-section-title">Intérêts</div><div class="s-interests">${cv.interests}</div></div>` : ''}
+  <div><div class="s-section-title">Outils</div><div class="s-tags">${toolTags}</div></div>
+  ${customDesign.showSoftSkills ? `<div class="s-divider"></div><div><div class="s-section-title">Qualités</div><div style="font-size:7.5pt; line-height:1.4;">${cv.softSkills.map(s=>`• ${s}<br>`).join('')}</div></div>` : ''}
 </aside>
 <main class="main">
-  ${cv.profile ? `<div><div class="m-section-title">Profil</div><p class="m-profile">${cv.profile}</p></div>` : ''}
-  ${cv.experiences.length ? `<div><div class="m-section-title">Expériences Professionnelles</div><div>${xpItems}</div></div>` : ''}
-  ${cv.education.length ? `<div><div class="m-section-title">Formation</div><div class="edu-grid">${eduItems}</div></div>` : ''}
+  <div><div class="m-section-title">Profil</div><p class="m-profile">${cv.profile}</p></div>
+  <div><div class="m-section-title">Expériences Professionnelles</div>${xpItems}</div>
+  <div><div class="m-section-title">Parcours Académique</div><div class="edu-grid">${cv.education.map(e=>`<div class="edu-item"><div class="edu-degree">${e.degree}</div><div class="edu-school">${e.school}</div><div class="edu-year">${e.year}</div></div>`).join('')}</div></div>
+  ${customDesign.showInterests ? `<div><div class="m-section-title">Intérêts</div><p style="font-size:8pt; color:var(--muted);">${cv.interests}</p></div>` : ''}
 </main>
 </div></body></html>`;
 }
 
+// 2. LIGHT PRO [cite: 54]
 function renderCVLightPro() {
-  const skillPills = cv.devSkills.map(s=>
-    `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-size:8.5pt;color:#334155;">${s.name}</span>
-      <div style="width:80px;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;">
-        <div style="width:${s.level}%;height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:2px;"></div>
-      </div>
-    </div>`).join('');
-  const videoP = cv.videoSkills.map(s=>
-    `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-size:8.5pt;color:#334155;">${s.name}</span>
-      <div style="width:80px;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;">
-        <div style="width:${s.level}%;height:100%;background:linear-gradient(90deg,#8b5cf6,#a78bfa);border-radius:2px;"></div>
-      </div>
-    </div>`).join('');
-  const tools = cv.tools.map(t=>`<span style="font-size:7pt;padding:2px 7px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;border-radius:3px;">${t}</span>`).join(' ');
-  const langs = cv.languages.map(l=>`<div style="display:flex;justify-content:space-between;font-size:8pt;color:#475569;margin-bottom:4px;"><span>${l.name}</span><span style="color:#3b82f6;font-weight:600;">${l.level}</span></div>`).join('');
-  const xp = cv.experiences.map(x=>`
-    <div style="margin-bottom:8mm;padding-left:4mm;border-left:2px solid #bfdbfe;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div style="font-family:'Syne',sans-serif;font-size:9pt;font-weight:700;color:#1e293b;">${x.title}</div>
-        <div style="font-size:7pt;color:#3b82f6;font-weight:600;white-space:nowrap;">${x.date}</div>
-      </div>
-      <div style="font-size:7.5pt;color:#64748b;margin-top:1mm;font-style:italic;">${x.company}</div>
-      <ul style="margin-top:2mm;list-style:none;padding:0;">
-        ${x.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li style="font-size:7.5pt;color:#64748b;padding:1mm 0 1mm 3mm;position:relative;line-height:1.4;"><span style="position:absolute;left:0;color:#3b82f6;">›</span>${b.trim()}</li>`).join('')}
-      </ul>
-    </div>`).join('');
-  const edu = cv.education.map(e=>`
-    <div style="padding:3mm;background:#f8fafc;border-top:2px solid #bfdbfe;border-radius:0 0 4px 4px;margin-bottom:2mm;">
-      <div style="font-size:8pt;font-weight:600;color:#1e293b;">${e.degree}</div>
-      <div style="font-size:7pt;color:#64748b;margin-top:1mm;">${e.school}</div>
-      <div style="font-size:6.5pt;color:#3b82f6;font-weight:700;margin-top:1mm;">${e.year}</div>
-    </div>`).join('');
-
-  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>CV — ${cv.name}</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  const accent = customDesign.accentColor;
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{background:#e2e8f0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:2rem;font-family:'Outfit',sans-serif;}
-.cv{width:210mm;min-height:297mm;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.15);overflow:hidden;}
-.cv-top{background:linear-gradient(135deg,#1e3a5f 0%,#1d4ed8 100%);padding:8mm 10mm;color:#fff;}
-.cv-name{font-family:'Syne',sans-serif;font-size:18pt;font-weight:800;letter-spacing:-.02em;}
-.cv-title{font-size:8pt;font-weight:500;color:#93c5fd;letter-spacing:.12em;text-transform:uppercase;margin-top:1.5mm;}
-.cv-contact{display:flex;flex-wrap:wrap;gap:4mm;margin-top:4mm;}
-.cv-ci{font-size:7.5pt;color:#bfdbfe;display:flex;align-items:center;gap:1.5mm;}
-.cv-body{display:flex;}
-.cv-left{width:65mm;background:#f8fafc;border-right:1px solid #e2e8f0;padding:7mm 6mm;}
-.cv-right{flex:1;padding:7mm 8mm;}
-.sec-t{font-family:'Syne',sans-serif;font-size:7.5pt;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#1d4ed8;border-bottom:1.5px solid #bfdbfe;padding-bottom:1.5mm;margin-bottom:3mm;}
-.sec{margin-bottom:5mm;}
-@media print{body{background:#fff;padding:0;}.cv{box-shadow:none;}}
+${getCustomFontCSS()}
+body{font-size:13px;color:#334155;padding:0;margin:0;-webkit-print-color-adjust:exact;}
+.cv-wrap{width:210mm;height:297mm;background:#fff;display:flex;flex-direction:column;}
+.header{background:linear-gradient(135deg, #1e293b, #0f172a); color:#fff; padding:8mm 10mm; border-bottom:4px solid ${accent};}
+.h-name{font-size:18pt; font-weight:800; margin:0;}
+.h-title{font-size:9pt; color:${accent}; text-transform:uppercase; letter-spacing:1px; margin-top:1mm;}
+.h-grid{display:flex; gap:5mm; font-size:8pt; color:#94a3b8; margin-top:3mm;}
+.body-grid{display:flex; flex:1;}
+.left-col{width:65mm; background:#f8fafc; padding:6mm; border-right:1px solid #e2e8f0;}
+.right-col{flex:1; padding:6mm 8mm;}
+.sec-title{font-size:8.5pt; font-weight:700; text-transform:uppercase; color:#0f172a; border-bottom:2px solid ${accent}; padding-bottom:1mm; margin-bottom:3mm; letter-spacing:0.5px;}
+.xp-block{margin-bottom:4mm;}
+.xp-row{display:flex; justify-content:between; font-weight:700; font-size:8.5pt;}
 </style></head>
-<body><div class="cv">
-<div class="cv-top">
-  <div class="cv-name">${cv.name}</div>
-  <div class="cv-title">${cv.title}</div>
-  <div class="cv-contact">
-    ${cv.location?`<span class="cv-ci">📍 ${cv.location}</span>`:''}
-    ${cv.phone?`<span class="cv-ci">📞 ${cv.phone}</span>`:''}
-    ${cv.email?`<span class="cv-ci">✉ ${cv.email}</span>`:''}
-    ${cv.github?`<span class="cv-ci">🔗 ${cv.github}</span>`:''}
+<body><div class="cv-wrap">
+  <div class="header">
+    <div class="h-name title-font">${cv.name}</div><div class="h-title">${cv.title}</div>
+    <div class="h-grid"><span>📍 ${cv.location}</span><span>📞 ${cv.phone}</span><span>✉ ${cv.email}</span></div>
   </div>
-</div>
-<div class="cv-body">
-<div class="cv-left">
-  ${cv.profile?`<div class="sec"><div class="sec-t">Profil</div><p style="font-size:7.5pt;color:#475569;line-height:1.7;">${cv.profile}</p></div>`:''}
-  ${cv.devSkills.length?`<div class="sec"><div class="sec-t">Dev & IA</div>${skillPills}</div>`:''}
-  ${cv.videoSkills.length?`<div class="sec"><div class="sec-t">Vidéo</div>${videoP}</div>`:''}
-  ${cv.tools.length?`<div class="sec"><div class="sec-t">Outils</div><div style="display:flex;flex-wrap:wrap;gap:2mm;">${tools}</div></div>`:''}
-  ${cv.languages.length?`<div class="sec"><div class="sec-t">Langues</div>${langs}</div>`:''}
-  ${cv.softSkills.length?`<div class="sec"><div class="sec-t">Qualités</div>${cv.softSkills.map(s=>`<div style="font-size:7.5pt;color:#475569;margin-bottom:2mm;">· ${s}</div>`).join('')}</div>`:''}
-</div>
-<div class="cv-right">
-  ${cv.experiences.length?`<div class="sec"><div class="sec-t">Expériences</div>${xp}</div>`:''}
-  ${cv.education.length?`<div class="sec"><div class="sec-t">Formation</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:2mm;">${edu}</div></div>`:''}
-</div>
-</div>
+  <div class="body-grid" style="display:flex; flex-direction:${customDesign.customLayoutOrder==='inverse'?'row-reverse':'row'};">
+    <div class="left-col">
+      <div class="sec-title">Résumé</div><p style="font-size:7.5pt; line-height:1.5; color:#475569; margin-bottom:4mm;">${cv.profile}</p>
+      <div class="sec-title">Compétences</div>
+      ${cv.devSkills.map(s=>`<div style="font-size:7.5pt; margin-bottom:2mm;"><b>${s.name}</b> <span style="color:${accent}">(${s.level}%)</span></div>`).join('')}
+      <div class="sec-title" style="margin-top:4mm;">Outils</div>
+      <div style="font-size:7.5pt; line-height:1.4;">${cv.tools.join(', ')}</div>
+    </div>
+    <div class="right-col">
+      <div class="sec-title">Expériences</div>
+      ${cv.experiences.map(x=>`
+        <div class="xp-block">
+          <div style="display:flex; justify-content:space-between; font-size:8.5pt; font-weight:700;"><span>${x.title}</span><span style="color:${accent}">${x.date}</span></div>
+          <div style="font-size:7.5pt; color:#64748b; font-style:italic;">${x.company}</div>
+          <div style="font-size:7.5pt; margin-top:1mm; color:#475569;">${x.bullets.split('\n').map(b=>`• ${b}<br>`).join('')}</div>
+        </div>
+      `).join('')}
+      <div class="sec-title" style="margin-top:4mm;">Formations</div>
+      ${cv.education.map(e=>`<div style="margin-bottom:2mm; font-size:7.5pt;"><b>${e.degree}</b> — ${e.school} (${e.year})</div>`).join('')}
+    </div>
+  </div>
 </div></body></html>`;
 }
 
+// 3. MODÈLE NOUVEAU : CREATIVE EMERALD (Inspiré des grilles asymétriques modernes)
+function renderCVCreativeEmerald() {
+  const accent = customDesign.accentColor;
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<style>
+${getCustomFontCSS()}
+body{font-size:13px; color:#2c3e50; margin:0; background:#fff;-webkit-print-color-adjust:exact;}
+.page{width:210mm; height:297mm; padding:10mm; display:flex; flex-direction:column; gap:5mm;}
+.top-card{background:${accent}12; border-left:6px solid ${accent}; padding:5mm 8mm; display:flex; justify-content:space-between; align-items:center;}
+.title-main{font-size:20pt; font-weight:800; color:${accent};}
+.contact-grid{font-size:8pt; text-align:right; line-height:1.5;}
+.grid-layouts{display:grid; grid-template-columns:${customDesign.customLayoutOrder==='inverse'?'1fr 2.2fr':'2.2fr 1fr'}; gap:6mm; flex:1;}
+.block-title{font-size:9pt; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#1a252f; border-bottom:2px dashed ${accent}; padding-bottom:1mm; margin-bottom:3mm;}
+.skill-pill{display:inline-block; font-size:7pt; background:#f0f3f4; padding:1mm 2.5mm; border-radius:50px; margin:0.5mm; font-weight:500;}
+</style></head>
+<body><div class="page">
+  <div class="top-card">
+    <div><div class="title-main title-font">${cv.name}</div><div style="font-size:10pt; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:#34495e;">${cv.title}</div></div>
+    <div class="contact-grid">📍 ${cv.location}<br>📞 ${cv.phone}<br>✉ ${cv.email}</div>
+  </div>
+  <div class="grid-layouts">
+    ${customDesign.customLayoutOrder==='inverse'?'':`
+    <div>
+      <div class="block-title">Expériences Majeures</div>
+      ${cv.experiences.map(x=>`
+        <div style="margin-bottom:3.5mm;">
+          <div style="font-size:8.5pt; font-weight:700;">${x.title} <span style="color:${accent}; font-size:7.5pt;">@ ${x.company}</span></div>
+          <div style="font-size:7pt; color:#95a5a6; font-weight:600; margin-bottom:0.5mm;">${x.date}</div>
+          <div style="font-size:7.5pt; color:#34495e; line-height:1.4;">${x.bullets.split('\n').map(b=>`- ${b}<br>`).join('')}</div>
+        </div>
+      `).join('')}
+    </div>
+    `}
+    <div>
+      <div class="block-title">Profil</div>
+      <p style="font-size:7.5pt; line-height:1.5; margin-bottom:4mm; color:#34495e;">${cv.profile}</p>
+      <div class="block-title">Expertises</div>
+      <div style="margin-bottom:4mm;">
+        ${cv.devSkills.map(s=>`<span class="skill-pill">${s.name}</span>`).join('')}
+        ${cv.tools.map(t=>`<span class="skill-pill" style="background:${accent}18; color:${accent}">${t}</span>`).join('')}
+      </div>
+      <div class="block-title">Cursus</div>
+      ${cv.education.map(e=>`
+        <div style="margin-bottom:2mm; font-size:7.5pt;">
+          <div style="font-weight:700;">${e.degree}</div>
+          <div style="font-size:7pt; color:#7f8c8d;">${e.school} | ${e.year}</div>
+        </div>
+      `).join('')}
+    </div>
+    ${customDesign.customLayoutOrder==='inverse'?`
+    <div>
+      <div class="block-title">Expériences Majeures</div>
+      ${cv.experiences.map(x=>`
+        <div style="margin-bottom:3.5mm;">
+          <div style="font-size:8.5pt; font-weight:700;">${x.title} <span style="color:${accent}; font-size:7.5pt;">@ ${x.company}</span></div>
+          <div style="font-size:7pt; color:#95a5a6; font-weight:600; margin-bottom:0.5mm;">${x.date}</div>
+          <div style="font-size:7.5pt; color:#34495e; line-height:1.4;">${x.bullets.split('\n').map(b=>`- ${b}<br>`).join('')}</div>
+        </div>
+      `).join('')}
+    </div>
+    `:''}
+  </div>
+</div></body></html>`;
+}
+
+// 4. MODÈLE NOUVEAU : EDITORIAL SERIF (Style chic, haute typographie centrée)
+function renderCVEditorialSerif() {
+  const accent = customDesign.accentColor;
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<style>
+${getCustomFontCSS()}
+body{font-size:13px; color:#111; margin:0; background:#fff; padding:12mm 15mm;-webkit-print-color-adjust:exact;}
+.center-head{text-align:center; border-bottom:1px solid #111; padding-bottom:4mm; margin-bottom:5mm;}
+.c-name{font-size:24pt; font-weight:700; letter-spacing:-0.5px;}
+.c-title{font-size:10pt; font-style:italic; color:${accent}; margin-top:1mm;}
+.c-contact{font-size:8.5pt; word-spacing:2px; margin-top:2mm; color:#444;}
+.sect-name{font-size:9.5pt; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; border-bottom:1px solid #ccc; padding-bottom:0.5mm; margin:5mm 0 3mm 0;}
+.xp-item-ser{margin-bottom:4mm;}
+.xp-item-ser table{width:100%; border-collapse:collapse;}
+</style></head>
+<body>
+  <div class="center-head">
+    <div class="c-name title-font">${cv.name}</div>
+    <div class="c-title">${cv.title}</div>
+    <div class="c-contact">📍 ${cv.location} &nbsp;·&nbsp; 📞 ${cv.phone} &nbsp;·&nbsp; ✉ ${cv.email}</div>
+  </div>
+  <p style="text-align:center; font-style:italic; font-size:8.5pt; max-width:650px; margin:0 auto 4mm auto; color:#333; line-height:1.5;">"${cv.profile}"</p>
+  
+  <div class="sect-name">Parcours Professionnel</div>
+  ${cv.experiences.map(x=>`
+    <div class="xp-item-ser">
+      <table style="font-size:8.5pt; font-weight:700; margin-bottom:0.5mm;"><tr><td>${x.title} — <span style="color:${accent};">${x.company}</span></td><td style="text-align:right; font-weight:normal; font-style:italic;">${x.date}</td></tr></table>
+      <div style="font-size:8pt; color:#333; line-height:1.4; padding-left:3mm;">${x.bullets.split('\n').map(b=>`• ${b}<br>`).join('')}</div>
+    </div>
+  `).join('')}
+
+  <div class="sect-name">Compétences Générales & Outils</div>
+  <table style="width:100%; font-size:8pt; line-height:1.5;">
+    <tr>
+      <td style="width:50%; valign:top;"><b>Technique :</b> ${cv.devSkills.map(s=>s.name).join(', ')}</td>
+      <td style="valign:top;"><b>Outils & Process :</b> ${cv.tools.join(', ')}</td>
+    </tr>
+  </table>
+
+  <div class="sect-name">Cursus Académique</div>
+  ${cv.education.map(e=>`
+    <div style="font-size:8pt; margin-bottom:1.5mm;">• <b>${e.degree}</b>, ${e.school} <span style="float:right; font-style:italic;">${e.year}</span></div>
+  `).join('')}
+</body></html>`;
+}
+
 /* ══════════════════════════════════════════════════
-   PORTFOLIO TEMPLATES
+   MOTEURS DE RENDU : PORTFOLIO TEMPLATES (4 MODÈLES)
 ══════════════════════════════════════════════════ */
 function renderPortfolioTemplate() {
-  if(portfolioTemplate==='minimal') return renderPortfolioMinimal();
-  return renderPortfolioDark();
+  switch(portfolioTemplate) {
+    case 'minimal': return renderPortfolioMinimal();
+    case 'masonry-visual': return renderPortfolioMasonry();
+    case 'adobe-sidebar': return renderPortfolioAdobeSidebar();
+    default: return renderPortfolioDarkCinematic();
+  }
 }
 
-function renderPortfolioDark() {
+// 1. DARK CINEMATIC (Anciennement AMG Dark, optimisé) [cite: 54]
+function renderPortfolioDarkCinematic() {
+  const accent = customDesign.accentColor;
   const cats = [...new Set(portfolio.projects.map(p=>p.category))];
-  const catBtns = ['all',...cats].map(c=>
-    `<button onclick="filterProjects('${c}',this)" class="cat-btn${c==='all'?' active':''}">${c==='all'?'Tous':c}</button>`
-  ).join('');
-  const projects = portfolio.projects.map(p=>`
-    <div class="proj-card" data-cat="${p.category}">
-      <div class="proj-cat">${p.category}</div>
-      <div class="proj-title">${p.title}</div>
-      <div class="proj-desc">${p.description}</div>
-      <div class="proj-tech">${(p.tech||'').split(',').map(t=>`<span class="tech-tag">${t.trim()}</span>`).join('')}</div>
-      ${p.link?`<a href="${p.link}" class="proj-link" target="_blank">Voir le projet →</a>`:''}
-    </div>`).join('');
-  const skills = portfolio.skills.map(s=>`<span class="skill-pill">${s}</span>`).join('');
-
+  const catBtns = ['all',...cats].map(c=>`<button onclick="filterP('${c}',this)" class="cat-btn">${c==='all'?'Tous':c}</button>`).join('');
+  
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-<title>${portfolio.name} · Portfolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#080c10;--bg2:#0d1117;--bg3:#161b22;--accent:#2d8cf0;--accent2:#58a6ff;--white:#e8edf2;--muted:#7d8590;--border:rgba(255,255,255,0.07);}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--white);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.7;}
-nav{padding:1.2rem 5vw;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
-.nav-logo{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;color:var(--white);}
-.nav-logo span{color:var(--accent);}
-.nav-links{display:flex;gap:2rem;list-style:none;}
-.nav-links a{font-size:.8rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;}
-.hero{padding:6rem 5vw 5rem;max-width:900px;margin:0 auto;}
-.hero-tag{font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;}
-.hero-name{font-family:'Syne',sans-serif;font-size:clamp(2.5rem,6vw,4rem);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:1rem;}
-.hero-name span{color:var(--accent);}
-.hero-title{font-size:1.1rem;color:var(--muted);margin-bottom:2rem;}
-.hero-bio{font-size:1rem;color:#a8bdd1;max-width:600px;line-height:1.8;margin-bottom:2.5rem;}
-.hero-links{display:flex;gap:1rem;flex-wrap:wrap;}
-.hero-link{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(45,140,240,.4);border-radius:4px;padding:.5rem 1.2rem;text-decoration:none;transition:all .2s;}
-.hero-link:hover{background:var(--accent);color:#fff;}
-.section{padding:4rem 5vw;max-width:900px;margin:0 auto;}
-.sec-title{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:2rem;}
-.skills-wrap{display:flex;flex-wrap:wrap;gap:.6rem;}
-.skill-pill{font-size:.82rem;padding:.35rem .85rem;background:rgba(45,140,240,.1);border:1px solid rgba(45,140,240,.2);color:var(--accent2);border-radius:4px;}
-.cat-btns{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem;}
-.cat-btn{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .85rem;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
-.cat-btn.active,.cat-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
-.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem;}
-.proj-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem;transition:border-color .2s,transform .2s;}
-.proj-card:hover{border-color:rgba(45,140,240,.4);transform:translateY(-2px);}
-.proj-card.hidden{display:none;}
-.proj-cat{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;}
-.proj-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--white);margin-bottom:.5rem;}
-.proj-desc{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem;}
-.proj-tech{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.75rem;}
-.tech-tag{font-size:.7rem;padding:.2rem .5rem;background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:3px;}
-.proj-link{font-size:.78rem;color:var(--accent2);text-decoration:none;font-weight:600;}
-.contact-block{padding:4rem 5vw;text-align:center;border-top:1px solid var(--border);}
-.contact-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.75rem;}
-.contact-sub{color:var(--muted);margin-bottom:1.5rem;}
-.contact-email{font-size:1.1rem;color:var(--accent2);font-weight:600;}
-footer{text-align:center;padding:1.5rem;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);}
+${getCustomFontCSS()}
+:root{--bg:#080c10;--bg2:#0d1117;--accent:${accent};--white:#e8edf2;--muted:#7d8590;}
+body{background:var(--bg); color:var(--white); margin:0; padding:2rem; font-weight:300;}
+nav{display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:1rem;}
+.hero{padding:4rem 0; max-width:800px;}
+.hero-name{font-size:32pt; font-weight:800; margin:0; color:${accent};}
+.cat-btn{background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--muted); padding:1.5mm 4mm; border-radius:4px; cursor:pointer; margin-right:2mm; text-transform:uppercase; font-size:7.5pt;}
+.cat-btn:hover{border-color:${accent}; color:#fff;}
+.grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:1rem; margin-top:2rem;}
+.card{background:var(--bg2); border:1px solid rgba(255,255,255,0.05); padding:1.5rem; border-radius:8px;}
 </style></head>
 <body>
-<nav>
-  <div class="nav-logo">${portfolio.name.split(' ')[0]} <span>${(portfolio.name.split(' ').slice(1).join(' ')||'Portfolio')}</span></div>
-  <ul class="nav-links"><li><a href="#projets">Projets</a></li><li><a href="#contact">Contact</a></li></ul>
-</nav>
-<div class="hero">
-  <div class="hero-tag">✦ Portfolio</div>
-  <h1 class="hero-name">${portfolio.name.split(' ').map((w,i)=>i===0?`<span>${w}</span>`:w).join(' ')}</h1>
-  <div class="hero-title">${portfolio.title}</div>
-  <p class="hero-bio">${portfolio.bio}</p>
-  <div class="hero-links">
-    ${portfolio.email?`<a href="mailto:${portfolio.email}" class="hero-link">✉ Email</a>`:''}
-    ${portfolio.github?`<a href="https://${portfolio.github}" target="_blank" class="hero-link">🔗 GitHub</a>`:''}
-    ${portfolio.linkedin?`<a href="https://${portfolio.linkedin}" target="_blank" class="hero-link">💼 LinkedIn</a>`:''}
+  <nav><div style="font-weight:800;" class="title-font">${portfolio.name}</div></nav>
+  <div class="hero">
+    <h1 class="hero-name title-font">${portfolio.name}</h1>
+    <p style="font-size:14px; color:var(--muted);">${portfolio.title}</p>
+    <p style="color:#a8bdd1; font-size:15px;">${portfolio.bio}</p>
   </div>
-</div>
-${portfolio.skills.length?`<div class="section"><div class="sec-title">Compétences</div><div class="skills-wrap">${skills}</div></div>`:''}
-${portfolio.projects.length?`
-<div class="section" id="projets">
-  <div class="sec-title">Projets</div>
-  <div class="cat-btns">${catBtns}</div>
-  <div class="proj-grid">${projects}</div>
-</div>`:''}
-<div class="contact-block" id="contact">
-  <div class="contact-title">Travaillons ensemble</div>
-  <div class="contact-sub">Disponible pour des missions freelance et des opportunités.</div>
-  ${portfolio.email?`<div class="contact-email">${portfolio.email}</div>`:''}
-</div>
-<footer>© ${new Date().getFullYear()} ${portfolio.name} · Construit avec AMG Generator</footer>
-<script>
-function filterProjects(cat,btn){
-  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.proj-card').forEach(c=>{
-    c.classList.toggle('hidden', cat!=='all' && c.dataset.cat!==cat);
-  });
-}
-<\/script>
+  <div><div style="font-size:8pt; font-weight:700; text-transform:uppercase; color:${accent}; margin-bottom:10px;">Filtres de Galerie</div>${catBtns}</div>
+  <div class="grid">${portfolio.projects.map(p=>`<div class="card" data-cat="${p.category}"><div style="font-size:7pt; color:${accent}; text-transform:uppercase;">${p.category}</div><h3 style="margin:5px 0;" class="title-font">${p.title}</h3><p style="font-size:12px; color:var(--muted);">${p.description}</p></div>`).join('')}</div>
+  <script>
+    function filterP(c, btn) {
+      document.querySelectorAll('.card').forEach(card => {
+        card.style.display = (c === 'all' || card.dataset.cat === c) ? 'block' : 'none';
+      });
+    }
+  <\/script>
 </body></html>`;
 }
 
+// 2. MINIMAL [cite: 54]
 function renderPortfolioMinimal() {
-  const skills = portfolio.skills.map(s=>`<span style="font-size:.82rem;padding:.3rem .75rem;background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:4px;">${s}</span>`).join(' ');
-  const projects = portfolio.projects.map(p=>`
-    <div style="padding:1.5rem;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:1rem;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem;">
-        <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:#0f172a;">${p.title}</div>
-        <span style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3b82f6;background:#eff6ff;padding:.2rem .5rem;border-radius:3px;">${p.category}</span>
-      </div>
-      <p style="font-size:.85rem;color:#64748b;line-height:1.6;margin-bottom:.75rem;">${p.description}</p>
-      <div style="display:flex;flex-wrap:wrap;gap:.3rem;">
-        ${(p.tech||'').split(',').map(t=>`<span style="font-size:.7rem;padding:.15rem .45rem;background:#f8fafc;border:1px solid #e2e8f0;color:#94a3b8;border-radius:3px;">${t.trim()}</span>`).join('')}
-      </div>
-      ${p.link?`<a href="${p.link}" style="display:inline-block;margin-top:.75rem;font-size:.78rem;color:#3b82f6;font-weight:600;text-decoration:none;" target="_blank">Voir →</a>`:''}
-    </div>`).join('');
-
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-<title>${portfolio.name} · Portfolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{background:#fff;color:#1e293b;font-family:'Outfit',sans-serif;font-weight:400;line-height:1.7;max-width:760px;margin:0 auto;padding:3rem 2rem;}
-h1{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.5rem;}
-h1 span{color:#3b82f6;}
-.subtitle{font-size:1rem;color:#64748b;margin-bottom:2rem;}
-.bio{font-size:.95rem;color:#475569;max-width:560px;line-height:1.8;margin-bottom:2rem;}
-.links{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:3rem;}
-.link{font-size:.8rem;font-weight:600;color:#3b82f6;text-decoration:none;border-bottom:1px solid #bfdbfe;padding-bottom:1px;}
-.sec-title{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#94a3b8;margin-bottom:1rem;margin-top:2.5rem;}
-hr{border:none;border-top:1px solid #f1f5f9;margin:2rem 0;}
+${getCustomFontCSS()}
+body{background:#fff; color:#1e293b; max-width:700px; margin:0 auto; padding:3rem 2rem;}
+h1{font-size:26pt; font-weight:800; margin:0;}
+.proj-box{padding:1rem; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:1rem;}
 </style></head>
 <body>
-<h1><span>${portfolio.name.split(' ')[0]}</span> ${portfolio.name.split(' ').slice(1).join(' ')}</h1>
-<div class="subtitle">${portfolio.title}</div>
-<p class="bio">${portfolio.bio}</p>
-<div class="links">
-  ${portfolio.email?`<a href="mailto:${portfolio.email}" class="link">Email</a>`:''}
-  ${portfolio.github?`<a href="https://${portfolio.github}" class="link" target="_blank">GitHub</a>`:''}
-  ${portfolio.linkedin?`<a href="https://${portfolio.linkedin}" class="link" target="_blank">LinkedIn</a>`:''}
-</div>
-${portfolio.skills.length?`<div class="sec-title">Compétences</div><div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem;">${skills}</div>`:''}
-${portfolio.projects.length?`<div class="sec-title">Projets</div>${projects}`:''}
-<hr>
-<div style="font-size:.78rem;color:#94a3b8;text-align:center;padding:1rem 0;">© ${new Date().getFullYear()} ${portfolio.name}</div>
+  <h1 class="title-font">${portfolio.name}</h1><p style="color:#64748b;">${portfolio.title}</p>
+  <p style="font-size:14px; line-height:1.6; color:#475569;">${portfolio.bio}</p>
+  <div style="margin-top:2rem;">
+    ${portfolio.projects.map(p=>`<div class="proj-box"><h3>${p.title}</h3><p style="font-size:13px; color:#64748b;">${p.description}</p><span style="font-size:11px; background:#f1f5f9; padding:1mm 2mm;">${p.tech}</span></div>`).join('')}
+  </div>
 </body></html>`;
 }
 
-/* ══════════════════════════════════════════════════
-   INIT
-══════════════════════════════════════════════════ */
-renderForm();
-updatePreview();
+// 3. MODÈLE NOUVEAU : MASONRY VISUAL (Spécialisé Monteurs / Graphistes, grille immersive)
+function renderPortfolioMasonry() {
+  const accent = customDesign.accentColor;
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<style>
+${getCustomFontCSS()}
+body{background:#0a0a0a; color:#fff; margin:0; padding:3vh 4vw;}
+.grid-masonry{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); grid-auto-rows: 180px; gap:15px;}
+.mason-item{background:#121212; border:1px solid rgba(255,255,255,0.08); border-radius:4px; padding:20px; display:flex; flex-direction:column; justify-content:end; position:relative; overflow:hidden; transition:0.3s;}
+.mason-item:hover{border-color:${accent}; transform:translateY(-3px);}
+.mason-item:nth-child(3n+1) { grid-row: span 2; background:linear-gradient(45deg, #111, ${accent}15); }
+.p-cat{font-size:7pt; text-transform:uppercase; letter-spacing:1px; color:${accent};}
+</style></head>
+<body>
+  <div style="margin-bottom:2rem;"><h1 class="title-font" style="margin:0; font-size:24pt;">${portfolio.name}</h1><p style="color:#888; font-size:12px; margin:0;">${portfolio.title} &nbsp;|&nbsp; Galerie de créations</p></div>
+  <div class="grid-masonry">
+    ${portfolio.projects.map(p=>`
+      <div class="mason-item">
+        <div class="p-cat">${p.category}</div>
+        <h3 class="title-font" style="margin:4px 0 2px 0; font-size:13px;">${p.title}</h3>
+        <p style="font-size:11px; color:#aaa; margin:0; line-height:1.3;">${p.description}</p>
+        <div style="font-size:9px; color:#666; margin-top:5px;">${p.tech}</div>
+      </div>
+    `).join('')}
+  </div>
+</body></html>`;
+}
+
+// 4. MODÈLE NOUVEAU : ADOBE LEFT-SIDEBAR (Structure stricte d'Adobe Portfolio)
+function renderPortfolioAdobeSidebar() {
+  const accent = customDesign.accentColor;
+  const isInverse = customDesign.customLayoutOrder === 'inverse';
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<style>
+${getCustomFontCSS()}
+body{background:#ffffff; color:#222; margin:0; padding:0; display:flex; flex-direction:${isInverse?'row-reverse':'row'}; min-height:100vh;}
+.adobe-aside{width:220px; background:#fafafa; border-right:1px solid #eee; padding:40px 25px; display:flex; flex-direction:column; gap:6px; flex-shrink:0;}
+.a-brand{font-size:16pt; font-weight:800; color:#111; text-decoration:none; margin-bottom:5px;}
+.a-bio{font-size:11px; color:#666; line-height:1.5; margin-top:15px;}
+.adobe-content{flex:1; padding:40px; display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:20px; align-content:start;}
+.adobe-card{border-bottom:1px solid #eee; padding-bottom:15px;}
+.adobe-title{font-size:11pt; font-weight:700; color:#111; margin:8px 0 2px 0;}
+</style></head>
+<body>
+  <div class="adobe-aside" style="border-left:${isInverse?'1px solid #eee':'none'}; border-right:${isInverse?'none':'1px solid #eee'};">
+    <a href="#" class="a-brand title-font">${portfolio.name}</a>
+    <div style="font-size:11px; font-weight:600; color:${accent}; text-transform:uppercase;">${portfolio.title}</div>
+    <div class="a-bio">${portfolio.bio}</div>
+    <div style="margin-top:auto; font-size:10px; color:#aaa;">✉ ${portfolio.email}</div>
+  </div>
+  <div class="adobe-content">
+    ${portfolio.projects.map(p=>`
+      <div class="adobe-card">
+        <div style="width:100%; height:130px; background:#f4f4f4; border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:24px; color:#ddd; font-weight:bold;">🎞</div>
+        <div class="adobe-title title-font">${p.title}</div>
+        <div style="font-size:11px; color:#777; margin-bottom:5px;">${p.description}</div>
+        <span style="font-size:9px; background:${accent}12; color:${accent}; padding:0.5mm 1.5mm; font-weight:600;">${p.category}</span>
+      </div>
+    `).join('')}
+  </div>
+</body></html>`;
+}
+
+// Lancement automatique au chargement initial
+setMode('cv');
 </script>
 </body>
 </html>
