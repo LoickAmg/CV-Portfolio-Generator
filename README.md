@@ -1,4 +1,4 @@
-# CV & Portfolio Generator
+# CV & Portfolio Generator 
 
 Générateur dynamique de CV et de portfolios en HTML, déployable sur GitHub Pages.
 
